@@ -1,6 +1,7 @@
 from nltk.corpus import stopwords
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
+from googletrans import Translator
 from typing import List
 
 
@@ -9,22 +10,46 @@ class Preprocessor:
     A preprocessor for the content-based recommender service
     """
 
-    def preprocess_string(self, input_string: str, input_language: str) -> List[str]:
+    stemmer: PorterStemmer
+    translator: Translator
+
+    def __init__(self, stemmer: PorterStemmer, translator: Translator):
         """
-        Performs stop-word removal and stemming on the input string
+        Ctor
+        :param stemmer: the word stemmer
+        :param translator: the tool used for translation from other
+        languages to English
+        """
+
+        self.stemmer = stemmer
+        self.translator = translator
+
+    def preprocess_string(self, input_string: str, input_language: str = "english") -> List[str]:
+        """
+        Performs stop-word removal, translation and stemming on the input string
         :param input_string: Input string that is to be pre-processed
-        :param input_language: A language of the input
+        :param input_language: An optional parameter of the input language.
+        The default value is set to 'english'
         :return: A list of stemmed words that are not stop-words
         """
 
         processed_words = []
-        stemmer = PorterStemmer()
         input_words = word_tokenize(input_string, input_language)
         stop_words = stopwords.words(input_language)
 
         for word in input_words:
             if word not in stop_words:
-                stemmed_word = stemmer.stem(word)
+                stemmed_word = self.stemmer.stem(word)
                 processed_words.append(stemmed_word)
 
         return processed_words
+
+    def _add_toc_specific_stop_words(self, stop_words: dict) -> None:
+        """
+        Adds additional stop-words to the dictionary. These stop-words
+        are specific for the tables of contents. Examples of such words are
+        'page', 'bibliography' and 'index'
+        :param stop_words:
+        """
+
+        pass
