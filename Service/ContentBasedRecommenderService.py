@@ -1,9 +1,7 @@
 import Preprocessor
 from Persistence.Entities import BookDao
 from typing import List
-from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 
 
 class ContentBasedRecommenderService:
@@ -12,20 +10,20 @@ class ContentBasedRecommenderService:
     """
 
     preprocessor: Preprocessor
-    count_vectorizer: CountVectorizer
+    tfidf_vectorizer: TfidfVectorizer
     book_dao: BookDao
 
-    def __init__(self, preprocessor: Preprocessor, book_dao: BookDao, count_vectorizer: CountVectorizer):
+    def __init__(self, preprocessor: Preprocessor, book_dao: BookDao, tfidf_vectorizer: TfidfVectorizer):
         """
         Ctor
         :param preprocessor: content pre-processor
         :param book_dao: data access object for books
-        :param count_vectorizer: count vectorizer
+        :param tfidf_vectorizer: TF-IDF vectorizer
         """
 
         self.preprocessor = preprocessor
         self.book_dao = book_dao
-        self.count_vectorizer = count_vectorizer
+        self.tfidf_vectorizer = tfidf_vectorizer
 
     def recommend(self, count: int) -> List[int]:
         """
@@ -36,3 +34,4 @@ class ContentBasedRecommenderService:
 
         features = ["title", "table_of_contents", "description", "author"]
         books = self.book_dao.get_books()
+        tfidf_matrix = self.tfidf_vectorizer.fit_transform(books["table_of_contents"])
