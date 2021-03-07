@@ -2,7 +2,7 @@ from typing import List
 
 from pandas import DataFrame
 import pandas.io.sql as sqlio
-import DBConnector
+from Persistence import DBConnector
 
 
 class BookDao:
@@ -17,10 +17,13 @@ class BookDao:
         """
 
         connection = DBConnector.create_connection()
-        query = "SELECT * FROM books"
+        query = "SELECT * FROM book"
         books = sqlio.read_sql(query, connection)
         connection.close()
         return books
+
+    def get_user_item_matrix(self):
+        pass
 
     def find_books(self, criteria: List[str] = None) -> DataFrame:
         """
@@ -30,4 +33,4 @@ class BookDao:
         """
 
         connection = DBConnector.create_connection()
-        query = "SELECT * FROM books WHERE "
+        query = "SELECT * FROM book"

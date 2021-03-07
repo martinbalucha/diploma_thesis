@@ -1,7 +1,9 @@
 import Preprocessor
-from Persistence.Entities import BookDao
+from pandas import DataFrame
+from Persistence.Dao import BookDao
 from typing import List
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import linear_kernel
 
 
 class ContentBasedRecommenderService:
@@ -32,6 +34,17 @@ class ContentBasedRecommenderService:
         :return: 
         """
 
-        features = ["title", "table_of_contents", "description", "author"]
+        features = ["title", "tableOfContents", "description", "author"]
         books = self.book_dao.get_books()
-        tfidf_matrix = self.tfidf_vectorizer.fit_transform(books["table_of_contents"])
+        tfidf_matrix = self.tfidf_vectorizer.fit_transform(books["tableOfContents"])
+        cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+
+    def _build_features(self, books: DataFrame) -> None:
+        """
+        Adjusts loaded dataframe
+        :param books: a dataframe with books
+        :return:
+        """
+        pass
+
+

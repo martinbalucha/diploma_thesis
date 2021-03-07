@@ -8,5 +8,5 @@ def create_connection():
     :return: a connection to the database.
     """
 
-    connection = psycopg2.connect()
+    connection = psycopg2.connect(host="localhost", database="library", user="postgres", password="admin")
     return connection

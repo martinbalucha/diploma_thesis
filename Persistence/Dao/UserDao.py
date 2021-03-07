@@ -1,7 +1,7 @@
+import bcrypt
 import pandas.io.sql as sqlio
-import DBConnector
 from pandas import DataFrame
-from BusinessLogic.DomainObjects import User
+from Persistence import DBConnector
 
 
 class UserDao:
@@ -35,15 +35,19 @@ class UserDao:
         connection.close()
         return users
 
-    def create(self, user: User) -> None:
+    def create(self, username: str, password: str) -> None:
         """
         Stores a new user into the database
-        :param user: a new user that will be stored
+        :param username: a username of the new user
+        :param password: password of the new user
         """
 
-        query = """INSERT INTO users VALUES(id, login, password_hash)
-                    VALUES (%d, %s, %s)"""
+        salt = bcrypt.gensalt()
+        hashed_password = bcrypt.hashpw(password, salt)
+        query = """INSERT INTO users VALUES(login, password_hash)
+                    VALUES (%s, %s)"""
 
-        connection = DBConnector.create_connection()
-
-        connection.close()
+        with DBConnector.create_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, (username, hashed_password))
+                connection.commit()

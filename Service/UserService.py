@@ -1,4 +1,5 @@
-from Persistence.Entities import UserDao
+import bcrypt
+from Persistence.Dao import UserDao
 
 
 class UserService:
@@ -6,8 +7,6 @@ class UserService:
     A service class for business logic operations with
     users
     """
-
-    user_dao: UserDao
 
     def __init__(self, user_dao: UserDao):
         """
@@ -17,7 +16,7 @@ class UserService:
 
         self.user_dao = user_dao
 
-    def authentise(self, login: str, password: str) -> bool:
+    def authenticate(self, login: str, password: str) -> bool:
         """
         Performs authentication
         :param login: login given by the user
@@ -28,6 +27,8 @@ class UserService:
 
         user = self.user_dao.get_user(login)
         if user is not None:
-            return True
+            return bcrypt.checkpw(password, user)
         return False
 
+    def register(self, user):
+        pass
