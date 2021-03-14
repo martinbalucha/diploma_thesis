@@ -1,6 +1,9 @@
+import swifter
 from nltk.stem import PorterStemmer
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 from googletrans import Translator
-from typing import List
+from pandas import Series, DataFrame
 
 
 class Preprocessor:
@@ -10,6 +13,7 @@ class Preprocessor:
 
     stemmer: PorterStemmer
     translator: Translator
+    stop_words: dict
 
     def __init__(self, stemmer: PorterStemmer, translator: Translator):
         """
@@ -21,27 +25,87 @@ class Preprocessor:
 
         self.stemmer = stemmer
         self.translator = translator
+        self.stop_words = self._build_stop_word_dict()
 
-    def preprocess_string(self, word: str, input_language: str = "english") -> List[str]:
+    def _to_lower(self, book: Series) -> str:
         """
-        Performs translation and stemming on the input string
-        :param word: Input string that is to be pre-processed
-        :param input_language: An optional parameter of the input language.
-        The default value is set to 'english'
-        :return: Stem of the translated input word
+        Converts bag of words to lowercase
+        :param book: a row with book information
+        :return: bag of words column converted to lowercase
         """
 
-        lower_word = word.lower()
-        if input_language != "english":
-            lower_word = self.translator.translate(lower_word, src=input_language)
-        return self.stemmer.stem(lower_word)
+        return book["bagOfWords"].lower()
 
-    def _add_toc_specific_stop_words(self, stop_words: dict) -> None:
+    def _preprocess(self, book: Series) -> str:
         """
-        Adds additional stop-words to the dictionary. These stop-words
+        Pre-processes the bag of words
+        :param book: a row with book information
+        :return: pre-processed book's bag of words
+        """
+
+        lowercase_string = self._to_lower(book)
+        words = word_tokenize(lowercase_string)
+        preprocessed_words = self.remove_stop_words(words)
+        separator = " "
+        return separator.join(preprocessed_words)
+
+    def preprocess(self, data_frame: DataFrame) -> DataFrame:
+        """
+        Pre-processes the whole dataframe
+        :param data_frame: a dataframe which is to be pre-processed
+        :return: pre-processed dataframe
+        """
+
+        data_frame["author"] = data_frame.swifter.apply(self._adjust_author_name, axis=1)
+        data_frame.reset_index(drop=True, inplace=True)
+        data_frame["bagOfWords"] = data_frame.swifter.apply(self._build_features, axis=1)
+        data_frame["bagOfWords"] = data_frame.swifter.apply(self._preprocess, axis=1)
+
+    def _adjust_author_name(self, book: Series) -> str:
+        """
+        Removes spaces from author name. The idea is match prevent false similarities
+        between books whose authors have the same first name, e.g. James Burnham and James Baldwin.
+        By removing spaces, first name and surname are joined and treated as one words.
+        :param book: a row containing information about the book
+        :return: joined first name and surname of the author
+        """
+
+        author = str(book["author"])
+        return author.replace(" ", "")
+
+    def remove_stop_words(self, words: list) -> str:
+        """
+        Removes stop-words from bag of words
+        :param words: a list of words that are to be cleared
+        :return: a bag of words cleared of any stop-words
+        """
+
+        filtered_words = []
+        for word in words:
+            if word not in self.stop_words:
+                stemmed_word = self.stemmer.stem(word)
+                if len(stemmed_word) > 1:
+                    filtered_words.append(stemmed_word)
+        return filtered_words
+
+    def _build_stop_word_dict(self) -> dict:
+        """
+        Adds additional stop-words to the standard dictionary. These stop-words
         are specific for the tables of contents. Examples of such words are
-        'page', 'bibliography' and 'index'
-        :param stop_words:
+        'page', 'bibliography' and 'index' but also HTML elements like <br>
+        :return: expanded dictionary of stop-words
         """
 
-        pass
+        stop_words = set(stopwords.words("english"))
+        additional_words = ["page", "index", "bibliography", "br", "/br", "copyright", "\'s"]
+        for stop_word in additional_words:
+            stop_words.add(stop_word)
+        return stop_words
+
+    def _build_features(self, book: Series) -> str:
+        """
+        Combines all features used in content-based filtering
+        :return: combined feature of the book
+        """
+
+        return book["title"] + " " + book["author"] + " " + book["description"] + " " + book["tableOfContents"]

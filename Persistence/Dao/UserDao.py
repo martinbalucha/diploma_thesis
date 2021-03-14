@@ -30,10 +30,8 @@ class UserDao:
         """
 
         query = "SELECT id FROM users"
-        connection = DBConnector.create_connection()
-        users = sqlio.read_sql(query, connection)
-        connection.close()
-        return users
+        with DBConnector.create_connection() as connection:
+            return sqlio.read_sql(query, connection)
 
     def create(self, username: str, password: str) -> None:
         """

@@ -38,8 +38,9 @@ class MatrixFactorizationService:
         :return:
         """
 
+        reader = Reader(rating_scale=(1, 5))
         user_item_matrix = self.rating_dao.get_user_item_matrix()
-        ratings_dataset = Dataset.load_from_df(user_item_matrix, Reader())
+        ratings_dataset = Dataset.load_from_df(user_item_matrix, reader)
         trainset = ratings_dataset.build_full_trainset()
         self.svd.fit(trainset)
 

@@ -14,7 +14,7 @@ class RatingDao:
         Returns user-item matrix in a dataframe
         :return: a dataframe of book ratings of each user
         """
-        query = "SELECT * FROM rating"
+        query = """SELECT "bookId", "userId", rating FROM rating"""
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection)
 
@@ -27,7 +27,8 @@ class RatingDao:
         command = """INSERT INTO rating ("bookId", "userId", rating) VALUES(%d, %d, %d)"""
         with DBConnector.create_connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute(command, (rating.book_id, rating.user_id, rating.rating))
+                parameters = (rating.book_id, rating.user_id, rating.rating)
+                cursor.execute(command, parameters)
                 connection.commit()
 
     def update(self, rating: Rating) -> None:

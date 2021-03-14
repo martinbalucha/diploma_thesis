@@ -28,4 +28,6 @@ class HybridRecommenderService:
         :return: a set of recommended books of the required size
         """
 
+        first_recommendation_set = self.content_based_service.recommend(15)
+        second_recommendation_set = self.matrix_factorization_service(15)
         pass
