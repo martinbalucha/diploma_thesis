@@ -27,7 +27,7 @@ class BookDao:
         :return: a dataframe of best rated books
         """
 
-        query = """SELECT b.*, t."metaTopic" FROM rating r
+        query = """SELECT b.*, t.name as "topicName", t."metaTopic" FROM rating r
                     INNER JOIN book b ON b.id = r."bookId" INNER JOIN topic t ON t.id = b.topic
                     WHERE "userId" = %s AND rating > 3
                     ORDER BY r.rating DESC"""
@@ -54,7 +54,7 @@ class BookDao:
         :return: a dataframe containing all books that the user could read next
         """
 
-        query = """SELECT DISTINCT b.* FROM book b LEFT JOIN rating r ON b.id = r."bookId"
+        query = """SELECT DISTINCT b.*, t.name as "topicName" FROM book b LEFT JOIN rating r ON b.id = r."bookId"
                     INNER JOIN topic t ON t.id = b.topic
                     WHERE (r."userId" IS DISTINCT FROM %s) AND b.language = 1
                     AND t.id IN %s"""

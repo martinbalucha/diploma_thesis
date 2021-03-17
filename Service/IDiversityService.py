@@ -1,12 +1,11 @@
-from typing import List
 
 
-class DiversityCalculator:
+class IDiversityService:
     """
     Ensures diversity of the recommendation set
     """
 
-    def diversify(self, recommendation_set: List, final_set_size: int):
+    def diversify(self, recommendation_set: list, final_set_size: int):
         """
         Calculates pair-wise diversity of the recommendation
         set and filters
@@ -15,4 +14,4 @@ class DiversityCalculator:
         :return: a filtered recommendation set that contains the most diverse items
         """
 
-        pass
+        raise NotImplementedError

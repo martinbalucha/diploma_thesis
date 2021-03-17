@@ -1,9 +1,10 @@
 from surprise import SVD, Reader
 from surprise import Dataset
 from Persistence.Dao import RatingDao
+from Service.IRecommenderService import IRecommenderService
 
 
-class MatrixFactorizationService:
+class MatrixFactorizationService(IRecommenderService):
     """
     A matrix factorization service using singular value decomposition
     """
@@ -21,29 +22,13 @@ class MatrixFactorizationService:
         self.svd = svd
         self.rating_dao = rating_dao
 
-    def get_n_recommendations(self, count: int) -> list:
-        """
-        Finds the n predicted books that the target user will
-        like the most
-        :param count: the number of closest books that will be returned
-        :return: a list of n books
-        """
-
-        recommended_books = self.recommend()
-
-
-    def recommend(self) -> list:
-        """
-        Performs matrix factorization and returns recommended books
-        :return:
-        """
-
+    def recommend(self, user_id: int, count: int) -> list:
         reader = Reader(rating_scale=(1, 5))
         user_item_matrix = self.rating_dao.get_user_item_matrix()
         ratings_dataset = Dataset.load_from_df(user_item_matrix, reader)
-        trainset = ratings_dataset.build_full_trainset()
-        self.svd.fit(trainset)
+        train_set = ratings_dataset.build_full_trainset()
+        self.svd.fit(train_set)
 
-        test_set = trainset.build_anti_testset()
+        test_set = train_set.build_anti_testset()
         prediction_set = self.svd.test(test_set)
         return prediction_set
