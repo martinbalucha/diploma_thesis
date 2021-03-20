@@ -2,7 +2,7 @@
 
 class IDiversityService:
     """
-    Ensures diversity of the recommendation set
+    An interface for a class that ensures diversity of the recommendation set
     """
 
     def diversify(self, recommendation_set: list, final_set_size: int):

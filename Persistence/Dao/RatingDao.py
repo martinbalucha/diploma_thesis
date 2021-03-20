@@ -14,7 +14,10 @@ class RatingDao:
         Returns user-item matrix in a dataframe
         :return: a dataframe of book ratings of each user
         """
-        query = """SELECT "bookId", "userId", rating FROM rating"""
+        query = """SELECT "userId", "bookId", rating FROM rating
+                    LEFT JOIN book ON book.id = rating."bookId"
+                    WHERE book.language = 1"""
+
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection)
 

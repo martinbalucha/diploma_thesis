@@ -35,6 +35,17 @@ class BookDao:
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection, params=[user_id])
 
+    def get_candidate_books_collaborative(self, user_id: int) -> DataFrame:
+        """
+        Returns all rated books by other users
+        :param user_id: ID of the target user.
+        :return: a dataframe of all rated books by other users
+        """
+
+        query = """SELECT b.* FROM book b WHERE id IN (SELECT "bookId" FROM rating WHERE "userId" != %s)"""
+        with DBConnector.create_connection() as connection:
+            return sqlio.read_sql(query, connection, params=(user_id,))
+
     def find_books_by_title(self, title: str) -> DataFrame:
         """
 

@@ -1,5 +1,4 @@
 import ray
-import nltk
 from googletrans import Translator
 from nltk import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -21,13 +20,15 @@ def main():
     preprocessor = Preprocessor(PorterStemmer(), Translator())
     vectorizer = TfidfVectorizer()
     content_based = ContentBasedRecommenderService(preprocessor, BookDao(), vectorizer)
-    matrix_factorization = MatrixFactorizationService(SVD(), RatingDao())
-    diversity_service = DiversityService()
+    matrix_factorization = MatrixFactorizationService(SVD(n_factors=20), RatingDao(), BookDao())
+    diversity_service = DiversityService(vectorizer)
     recommender_service = HybridRecommenderService(content_based, matrix_factorization, diversity_service)
-    kek = content_based.recommend(320562, 10)
+    result = recommender_service.recommend(320562, 20)
+    #kek = content_based.recommend(320562, 10)
+    #keke = matrix_factorization.recommend(320562, 10)
 
 if __name__ == "__main__":
-    nltk.download("stopwords")
-    nltk.download("punkt")
+    #nltk.download("stopwords")
+    #nltk.download("punkt")
     ray.init()
     main()

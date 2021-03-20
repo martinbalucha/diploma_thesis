@@ -11,7 +11,7 @@ from Service.IRecommenderService import IRecommenderService
 
 class ContentBasedRecommenderService(IRecommenderService):
     """
-    A service class that performs content-based recommendations
+    A service class that performs content-based recommendations. Implements IRecommenderService
     """
 
     preprocessor: IPreprocessor
@@ -40,7 +40,7 @@ class ContentBasedRecommenderService(IRecommenderService):
         tfidf_matrix = self.tfidf_vectorizer.fit_transform(books["bagOfWords"])
         cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
 
-        recommendations = []
+        recommendations = DataFrame(columns=books.columns)
         selected_best_books_count = len(selected_best_books)
         similar_per_book = count // selected_best_books_count
 
@@ -50,21 +50,23 @@ class ContentBasedRecommenderService(IRecommenderService):
             if i == selected_best_books_count - 1:
                 similar_per_book += count % selected_best_books_count
 
-            most_similar_books = self._select_similar_books(cosine_similarities, books, book["id"], similar_per_book)
-            recommendations.extend(most_similar_books)
+            recommendations = self._select_similar_books(cosine_similarities, books, book["id"],
+                                                         similar_per_book, recommendations)
 
         return recommendations
 
-    def _select_similar_books(self, similarities: numpy.ndarray, books: DataFrame, book_id: int, count: int) -> list:
+    def _select_similar_books(self, similarities: numpy.ndarray, books: DataFrame, book_id: int, count: int,
+                              recommendations: DataFrame) -> DataFrame:
         """
-        Selects the most similar books to the one with the given ID.
+        Selects the most similar books to the one with the given ID and appends them
+        to the result dataframe
         :param similarities: a matrix of cosine similarities
         :param book_id: an ID of a book for which similar ones will be found
         :param count: a number of similar books that are to be selected.
-        :return: A list of similar books
+        :param recommendations: a dataframe with recommended books
+        :return: dataframe filled with recommended books
         """
 
-        recommendations = []
         index = self._get_index_from_id(books, book_id)
         similarity_scores = list(enumerate(similarities[index]))
         similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
@@ -72,22 +74,9 @@ class ContentBasedRecommenderService(IRecommenderService):
 
         for similar_book in most_similar_books:
             recommended = self._get_book_by_index(books, similar_book[0])
-            recommendations.append(recommended)
+            recommendations = recommendations.append(recommended)
 
         return recommendations
-
-    def _adjust_recommendations_per_book(self, selected_book_count: int, required_count: int) -> int:
-        """
-        Adjusts the number of selected similar books per one read book. This is needed if the target
-        user has read fewer books than it was passed to method _select_best_rated_books in the parameter
-        count.
-        :param selected_book_count: a number of selected books rated by the user
-        :param required_count: a number of books that should be recommended
-        :return:
-        """
-
-        books_per_one = required_count // selected_book_count
-        return books_per_one
 
     def _select_best_rated_books(self, books: DataFrame, count: int) -> tuple:
         """
