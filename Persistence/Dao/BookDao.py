@@ -42,7 +42,9 @@ class BookDao:
         :return: a dataframe of all rated books by other users
         """
 
-        query = """SELECT b.* FROM book b WHERE id IN (SELECT "bookId" FROM rating WHERE "userId" != %s)"""
+        query = """SELECT b.*, t.name as "topicName" FROM book b 
+                    INNER JOIN topic t on b.topic = t.id
+                    WHERE b.id IN (SELECT "bookId" FROM rating WHERE "userId" != %s)"""
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection, params=(user_id,))
 
@@ -65,7 +67,8 @@ class BookDao:
         :return: a dataframe containing all books that the user could read next
         """
 
-        query = """SELECT DISTINCT b.*, t.name as "topicName" FROM book b LEFT JOIN rating r ON b.id = r."bookId"
+        query = """SELECT DISTINCT b.*, t.name as "topicName" FROM book b
+                    LEFT JOIN rating r ON b.id = r."bookId"
                     INNER JOIN topic t ON t.id = b.topic
                     WHERE (r."userId" IS DISTINCT FROM %s) AND b.language = 1
                     AND t.id IN %s"""
