@@ -1,4 +1,3 @@
-import bcrypt
 import pandas.io.sql as sqlio
 from pandas import DataFrame
 from Persistence import DBConnector
@@ -17,11 +16,11 @@ class UserDao:
         login exists
         """
 
-        connection = DBConnector.create_connection()
-        query = "SELECT * FROM user WHERE login = %s"
-        user = sqlio.read_sql(query, params=login, con=connection)
-        connection.close()
-        return user
+        query = """SELECT id, username, "passwordHash" FROM registered_user WHERE username = %s"""
+        with DBConnector.create_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(query, (login,))
+                return cursor.fetchone()
 
     def get_users(self) -> DataFrame:
         """
@@ -33,19 +32,16 @@ class UserDao:
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection)
 
-    def create(self, username: str, password: str) -> None:
+    def create(self, username: str, password_hash: str) -> None:
         """
         Stores a new user into the database
         :param username: a username of the new user
-        :param password: password of the new user
+        :param password_hash: hashed password of the new user
         """
 
-        salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password, salt)
-        query = """INSERT INTO users VALUES(login, password_hash)
-                    VALUES (%s, %s)"""
+        query = """INSERT INTO registered_user (username, "passwordHash") VALUES (%s, %s)"""
 
         with DBConnector.create_connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute(query, (username, hashed_password))
+                cursor.execute(query, (username, password_hash))
                 connection.commit()

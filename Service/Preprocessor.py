@@ -13,10 +13,9 @@ class Preprocessor(IPreprocessor):
     """
 
     stemmer: PorterStemmer
-    translator: Translator
     stop_words: dict
 
-    def __init__(self, stemmer: PorterStemmer, translator: Translator):
+    def __init__(self, stemmer: PorterStemmer):
         """
         Ctor
         :param stemmer: the word stemmer
@@ -25,7 +24,6 @@ class Preprocessor(IPreprocessor):
         """
 
         self.stemmer = stemmer
-        self.translator = translator
         self.stop_words = self._build_stop_word_dict()
 
     def _preprocess(self, book: Series) -> str:
