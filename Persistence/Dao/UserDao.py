@@ -8,7 +8,7 @@ class UserDao:
     Data access object for users
     """
 
-    def get_user(self, login: str):
+    def get_user_by_login(self, login: str):
         """
         Finds the user with the given login
         :param login: a string that should be login of the wanted user
@@ -22,15 +22,19 @@ class UserDao:
                 cursor.execute(query, (login,))
                 return cursor.fetchone()
 
-    def get_users(self) -> DataFrame:
+    def get_user(self, user_id: int) -> tuple:
         """
-        Gets IDs of all registered users
-        :return: a dataframe of all users registered in the system
+        Finds the user with the given ID
+        :param user_id: ID of the wanted user
+        :return: tuple containing information about the user with given ID.
+        Null if the user was not found 
         """
 
-        query = "SELECT id FROM users"
+        query = """SELECT id, username FROM registered_user WHERE id = %s"""
         with DBConnector.create_connection() as connection:
-            return sqlio.read_sql(query, connection)
+            with connection.cursor() as cursor:
+                cursor.execute(query, (user_id,))
+                return cursor.fetchone()
 
     def create(self, username: str, password_hash: str) -> None:
         """
