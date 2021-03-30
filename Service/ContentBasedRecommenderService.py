@@ -101,3 +101,13 @@ class ContentBasedRecommenderService(IRecommenderService):
             topics_id.append(numpy.uint64(meta_topic_id).item())
             books = books[books.id != book["id"]]
         return selected_books, topics_id
+
+    def _get_index_from_id(self, data_frame: DataFrame, book_id: int) -> int:
+        """
+        Gets index of the book with the given id
+        :param data_frame: dataframe with books
+        :param book_id: id of the sought item
+        :return: index of the book with given ID
+        """
+
+        return data_frame.index[data_frame["id"] == book_id].values[0]

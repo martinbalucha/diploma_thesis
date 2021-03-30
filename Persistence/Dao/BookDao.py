@@ -76,15 +76,18 @@ class BookDao:
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, con=connection, params=(user_id, tuple(topics)))
 
-    def find_read_books(self, user_id: int) -> DataFrame:
+    def find_rated_books(self, user_id: int) -> DataFrame:
         """
-        Finds all books read by the user
-        :param user_id: an id of the user whose read books will be returned
-        :return: a dataframe of all books read by the given user
+        Finds all books rated by the user
+        :param user_id: an id of the user whose rated books will be returned
+        :return: a dataframe of all books rated by the given user
         """
 
-        query = """SELECT b.* FROM book b LEFT JOIN rating r ON b.id = r."bookId"
-                    WHERE r."userId" = %d"""
+        query = """SELECT b.*, r.rating, t.name as "topicName"
+                    FROM book b
+                    INNER JOIN rating r ON b.id = r."bookId"
+                    INNER JOIN topic t on b.topic = t.id
+                    WHERE r."userId" = %s"""
 
         with DBConnector.create_connection() as connection:
-            return sqlio.read_sql(query, params=user_id, con=connection)
+            return sqlio.read_sql(query, params=(user_id,), con=connection)

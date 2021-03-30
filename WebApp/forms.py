@@ -11,7 +11,6 @@ class RegistrationForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired(), Length(min=2, max=18)])
     password = PasswordField("Password", validators=[DataRequired()])
     password_confirmation = PasswordField("Confirm password", validators=[DataRequired(), EqualTo("password")])
-
     submit = SubmitField("Sign up")
 
 
@@ -22,5 +21,13 @@ class LoginForm(FlaskForm):
 
     username = StringField("Username", validators=[DataRequired(), Length(min=2, max=18)])
     password = PasswordField("Password", validators=[DataRequired()])
-
     submit = SubmitField("Log in")
+
+
+class SearchForm(FlaskForm):
+    """
+    A form for finding books
+    """
+
+    book_title = StringField("Book title", validators=[DataRequired()])
+    submit = SubmitField("Search")

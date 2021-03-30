@@ -1,3 +1,4 @@
+from pandas import DataFrame
 from Persistence.Dao import BookDao
 
 
@@ -15,11 +16,14 @@ class BookService:
         """
         self.book_dao = book_dao
 
-    def get_best_rated_books(self, user_id: int):
+    def rated_books(self, user_id: int) -> DataFrame:
+        """
+        Finds all books rated by the user with given ID
+        :param user_id: ID of the user whose rated books will be found
+        :return: a dataframe containing all books rated by the user and their ratings
         """
 
-        :param user_id:
-        :return:
-        """
-
-        pass
+        rated_books = self.book_dao.find_rated_books(user_id)
+        rated_books = rated_books[["title", "author", "year", "pages", "rating", "topicName"]]
+        rated_books.rename(columns={"topicName": "Topic"})
+        return rated_books
