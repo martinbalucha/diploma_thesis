@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}{{ book["title"] }} by {{ book["author"] }}{% endblock %}
+{% block content %}
+	<div class="content-section">
+		<form method="POST">
+			{{ form.hidden_tag() }}
+			<fieldset class="form-group">
+				<label class="form-label">Book title</label>
+				<div class="form-group">
+					<input type="text" class="form-control" value="{{ book['title'] }}" readonly>
+				</div>
+
+				<label class="form-label">Author</label>
+				<div class="form-group">
+					<input type="text" class="form-control" value="{{ book['author'] }}" readonly>
+				</div>
+
+				<label class="form-label">Topic</label>
+				<div class="form-group">
+					<input type="text" class="form-control" value="{{ book['topicName'] }}" readonly>
+				</div>
+
+				{% if book['pages']|length > 0 %}
+				<label class="form-label">Year</label>
+				<div class="form-group">
+					<input type="text" class="form-control" value="{{ book['year'] }}" readonly>
+				</div>
+				{% endif %}
+
+				{% if book['pages']|length > 0 %}
+					<label class="form-label">Pages</label>
+					<div class="form-group">
+						<input type="text" class="form-control" value="{{ book['pages'] }}" readonly>
+					</div>
+				{% endif %}
+
+				{% if book['pages']|length > 0 %}
+					<label class="form-label">ISBN</label>
+					<div class="form-group">
+						<input type="text" class="form-control" value="{{ book['isbn'] }}" readonly>
+					</div>
+				{% endif %}
+
+				{% if book['description']|length > 0 %}
+					<label class="form-label">Book description</label>
+					<div class="form-group">
+						<textarea class="form-control"] rows="4" readonly>{{ book['description'] }}</textarea>
+					</div>
+				{% endif %}
+
+				{% if book['tableOfContents']|length > 0 %}
+					<label class="form-label">Book description</label>
+					<div class="form-group">
+						<textarea class="form-control" rows="5" cols="90" readonly>{{ book['tableOfContents'] }}</textarea>
+					</div>
+				{% endif %}
+			</fieldset>
+		</form>
+	</div>
+
+    <ul class="rate-area">
+		<input type="radio" id="5-star" name="rating" value="5" /><label for="5-star" title="Amazing">5 stars</label>
+		<input type="radio" id="4-star" name="rating" value="4" /><label for="4-star" title="Good">4 stars</label>
+		<input type="radio" id="3-star" name="rating" value="3" /><label for="3-star" title="Average">3 stars</label>
+		<input type="radio" id="2-star" name="rating" value="2" /><label for="2-star" title="Not Good">2 stars</label>
+		<input type="radio" id="1-star" name="rating" value="1" /><label for="1-star" title="Bad">1 star</label>
+	</ul>
+{% endblock %}

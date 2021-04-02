@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %} Find books{% endblock %}
+{% block content %}
+    <div class="content-section">
+        <form method="post">
+            {{ form.hidden_tag() }}
+            <fieldset class="form-group">
+                <div class="form-group">
+                    {{ form.book_title.label(class="form-control-label") }}
+                    {{ form.book_title(class="form-control from-control-lg") }}
+                </div>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-success") }}
+                </div>
+
+                {% if books and books|length > 0 %}
+                    <table class="table table-hover">
+                        <thead>
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Pages</th>
+                            <th scope="col">Topic</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            {% for book in books %}
+                                <tr>
+                                    <td><a href="{{ url_for('book_detail', book_id=book['id']) }}">{{ book["title"] }}</a></td>
+                                    <td>{{ book["author"] }}</td>
+                                    <td>{{ book["pages"] }}</td>
+                                    <td>{{ book["topicName"] }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                {% endif %}
+            </fieldset>
+        </form>
+    </div>
+{% endblock %}

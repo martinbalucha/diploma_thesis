@@ -5,8 +5,8 @@ from Service.BookService import BookService
 from WebApp import app, login_manager
 from WebApp.models.models import User, map_tuple_to_user_object
 from Persistence.Dao.UserDao import UserDao
-from flask import render_template, flash, redirect, url_for, render_template_string
-from WebApp.forms import LoginForm, RegistrationForm
+from flask import render_template, flash, redirect, url_for, render_template_string, request
+from WebApp.forms import LoginForm, RegistrationForm, BookDetailForm, SearchForm
 from Service.UserService import UserService
 
 
@@ -59,8 +59,26 @@ def rated_books():
     if len(books.index) == 0:
         flash("You have not rated any books yet. Go and rate some!", "info")
         return redirect(url_for("index"))
-    rated_books_html = books.to_html(classes="data", header=True, index=False)
-    return render_template("ratedBooks.html", tables=rated_books_html)
+    return render_template("ratedBooks.html", books=books)
+
+
+@app.route("/find", methods=["GET", "POST"])
+def find_books():
+    search_form = SearchForm()
+    if search_form.validate_on_submit():
+        title = search_form.book_title.data
+        book_service = BookService(BookDao())
+        results = book_service.find_book_by_title(title)
+        return render_template("findBooks.html", form=search_form, books=results)
+    return render_template("findBooks.html", form=search_form, books=None)
+
+
+@app.route("/book/<book_id>")
+def book_detail(book_id: int):
+    detail_form = BookDetailForm()
+    book_service = BookService(BookDao())
+    required_book = book_service.find_book(book_id, current_user.get_id())
+    return render_template("bookDetail.html", form=detail_form, book=required_book)
 
 
 @app.route("/recommend")

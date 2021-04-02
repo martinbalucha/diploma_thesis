@@ -1,5 +1,6 @@
 from pandas import DataFrame
 import pandas.io.sql as sqlio
+from psycopg2.extras import DictCursor
 from Persistence import DBConnector
 
 
@@ -8,17 +9,25 @@ class BookDao:
     Data access object for books
     """
 
-    def get_books(self) -> DataFrame:
+    def find_book_by_id(self, book_id: int, user_id: int) -> dict:
         """
-        Gets the set of all books in the table
-        :return: a dataframe containing all stored books
+        Finds the book with given ID
+        :param book_id: ID of the wanted book
+        :param user_id: ID of the target user
+        :return: a dictionary with required book. None is does not exist
         """
 
-        connection = DBConnector.create_connection()
-        query = "SELECT * FROM book"
-        books = sqlio.read_sql(query, connection)
-        connection.close()
-        return books
+        query = """SELECT b.id, b.author, b.title, b.year, b.pages, b."tableOfContents",
+                          b.isbn, b.description, t.name AS "topicName"
+                    FROM book b
+                    INNER JOIN topic t ON t.id = b.topic
+                    LEFT JOIN rating r ON r."bookId" = b.id AND r."userId" = %s
+                    WHERE b.id = %s"""
+
+        with DBConnector.create_connection() as connection:
+            with connection.cursor(cursor_factory=DictCursor) as cursor:
+                cursor.execute(query, (user_id, book_id,))
+                return cursor.fetchone()
 
     def get_best_rated_books(self, user_id: int) -> DataFrame:
         """
@@ -48,16 +57,21 @@ class BookDao:
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection, params=(user_id,))
 
-    def find_books_by_title(self, title: str) -> DataFrame:
+    def find_books_by_title(self, title: str) -> list:
         """
-
+        Finds books that have
         :param title: a title of the book
-        :return: a dataframe with books that satisfy the optional criteria
+        :return: a list of dictionaries containing information about found books
         """
 
-        query = "SELECT * FROM book WHERE title = %s"
+        query = """SELECT book.*, t.name as "topicName" FROM book 
+                    INNER JOIN topic t on book.topic = t.id
+                    WHERE lower(title) LIKE %s"""
+        title_wildcard = title + "%"
         with DBConnector.create_connection() as connection:
-            return sqlio.read_sql(query, params=title, con=connection)
+            with connection.cursor(cursor_factory=DictCursor) as cursor:
+                cursor.execute(query, (title_wildcard,))
+                return cursor.fetchall()
 
     def find_candidate_books(self, user_id: int, topics: list) -> DataFrame:
         """

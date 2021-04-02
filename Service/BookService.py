@@ -7,14 +7,14 @@ class BookService:
     Service class for operation on books
     """
 
-    book_dao: BookDao
+    _book_dao: BookDao
 
     def __init__(self, book_dao: BookDao):
         """
         Ctor
         :param book_dao: DAO for books
         """
-        self.book_dao = book_dao
+        self._book_dao = book_dao
 
     def rated_books(self, user_id: int) -> DataFrame:
         """
@@ -23,7 +23,23 @@ class BookService:
         :return: a dataframe containing all books rated by the user and their ratings
         """
 
-        rated_books = self.book_dao.find_rated_books(user_id)
-        rated_books = rated_books[["title", "author", "year", "pages", "rating", "topicName"]]
-        rated_books.rename(columns={"topicName": "Topic"})
-        return rated_books
+        return self._book_dao.find_rated_books(user_id)
+
+    def find_book(self, book_id: int, user_id: int) -> dict:
+        """
+        Finds the book with the given ID
+        :param book_id: ID of the book
+        :param user_id: ID of the target user
+        :return: a dictionary with book information. None, if does not exist
+        """
+
+        return self._book_dao.find_book_by_id(book_id, user_id)
+
+    def find_book_by_title(self, book_title: str) -> DataFrame:
+        """
+        Finds books which have title starting with the given parameter
+        :param book_title: a title of the wanted book
+        :return: a dataframe containing books withe the given title
+        """
+
+        return self._book_dao.find_books_by_title(book_title.lower())
