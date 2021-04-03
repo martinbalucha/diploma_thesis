@@ -1,6 +1,6 @@
 from pandas import DataFrame
 import pandas.io.sql as sqlio
-from psycopg2.extras import DictCursor
+from psycopg2.extras import DictCursor, RealDictCursor
 from Persistence import DBConnector
 
 
@@ -18,14 +18,14 @@ class BookDao:
         """
 
         query = """SELECT b.id, b.author, b.title, b.year, b.pages, b."tableOfContents",
-                          b.isbn, b.description, t.name AS "topicName"
+                          b.isbn, b.description, t.name AS "topicName", r.rating
                     FROM book b
                     INNER JOIN topic t ON t.id = b.topic
                     LEFT JOIN rating r ON r."bookId" = b.id AND r."userId" = %s
                     WHERE b.id = %s"""
 
         with DBConnector.create_connection() as connection:
-            with connection.cursor(cursor_factory=DictCursor) as cursor:
+            with connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, (user_id, book_id,))
                 return cursor.fetchone()
 

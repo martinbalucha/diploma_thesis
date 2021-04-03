@@ -35,7 +35,7 @@ class SearchForm(FlaskForm):
 
 class BookDetailForm(FlaskForm):
     """
-    A detail form of the book
+    A book detail form
     """
 
-    ratings = RadioField()
+    submit = SubmitField("Save")

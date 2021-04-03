@@ -1,11 +1,13 @@
 from flask_login import login_user, current_user, logout_user, login_required
-
 from Persistence.Dao.BookDao import BookDao
+from Persistence.Dao.RatingDao import RatingDao
 from Service.BookService import BookService
+from Service.DTO.RatingDto import RatingDto
+from Service.RatingService import RatingService
 from WebApp import app, login_manager
 from WebApp.models.models import User, map_tuple_to_user_object
 from Persistence.Dao.UserDao import UserDao
-from flask import render_template, flash, redirect, url_for, render_template_string, request
+from flask import render_template, flash, redirect, url_for, request, session
 from WebApp.forms import LoginForm, RegistrationForm, BookDetailForm, SearchForm
 from Service.UserService import UserService
 
@@ -73,12 +75,24 @@ def find_books():
     return render_template("findBooks.html", form=search_form, books=None)
 
 
-@app.route("/book/<book_id>")
+@app.route("/book/<book_id>", methods=["GET", "POST"])
 def book_detail(book_id: int):
     detail_form = BookDetailForm()
-    book_service = BookService(BookDao())
-    required_book = book_service.find_book(book_id, current_user.get_id())
-    return render_template("bookDetail.html", form=detail_form, book=required_book)
+    if request.method == "POST":
+        if detail_form.validate_on_submit():
+            rating_service = RatingService(RatingDao())
+            rating_dto = RatingDto(current_user.get_id(), book_id, request.form["rating"])
+            if session["already_rated"]:
+                rating_service.update(rating_dto)
+            else:
+                rating_service.create(rating_dto)
+            session.pop("already_rated")
+            return redirect(url_for("book_detail", book_id=book_id))
+    else:
+        book_service = BookService(BookDao())
+        required_book = book_service.find_book(book_id, current_user.get_id())
+        session["already_rated"] = required_book["rating"] is not None
+        return render_template("bookDetail.html", form=detail_form, book=required_book)
 
 
 @app.route("/recommend")

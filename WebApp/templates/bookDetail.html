@@ -54,15 +54,34 @@
 						<textarea class="form-control" rows="5" cols="90" readonly>{{ book['tableOfContents'] }}</textarea>
 					</div>
 				{% endif %}
+
+				<div class="form-group">
+					{% set book_rating = book["rating"] %}
+					<label class="form-label">Your rating</label>
+					<div class="rate">
+    					<input type="radio" id="star5" name="rating" value="5"
+							   {% if book_rating == 5 %} checked="checked" {% endif %}/>
+    					<label for="star5" title="It was amazing!">5 stars</label>
+    					<input type="radio" id="star4" name="rating" value="4"
+								{% if book_rating == 4 %} checked="checked" {% endif %}/>
+    					<label for="star4" title="I really liked it">4 stars</label>
+    					<input type="radio" id="star3" name="rating" value="3" \
+								{% if book_rating == 3 %} checked="checked" {% endif %}/>
+    					<label for="star3" title="I liked it">3 stars</label>
+    					<input type="radio" id="star2" name="rating" value="2"\
+								{% if book_rating == 2 %} checked="checked" {% endif %}/>
+    					<label for="star2" title="I did not like it">2 stars</label>
+    					<input type="radio" id="star1" name="rating" value="1"
+								{% if book_rating == 1 %} checked="checked" {% endif %}/>
+    					<label for="star1" title="It was terrible">1 star</label>
+					</div>
+				</div>
+				<div class="form-group">
+					{{ form.submit(class="btn btn-success") }}
+				</div>
+
 			</fieldset>
 		</form>
 	</div>
 
-    <ul class="rate-area">
-		<input type="radio" id="5-star" name="rating" value="5" /><label for="5-star" title="Amazing">5 stars</label>
-		<input type="radio" id="4-star" name="rating" value="4" /><label for="4-star" title="Good">4 stars</label>
-		<input type="radio" id="3-star" name="rating" value="3" /><label for="3-star" title="Average">3 stars</label>
-		<input type="radio" id="2-star" name="rating" value="2" /><label for="2-star" title="Not Good">2 stars</label>
-		<input type="radio" id="1-star" name="rating" value="1" /><label for="1-star" title="Bad">1 star</label>
-	</ul>
 {% endblock %}

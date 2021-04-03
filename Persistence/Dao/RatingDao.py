@@ -1,7 +1,7 @@
 from pandas import DataFrame
 import pandas.io.sql as sqlio
 from Persistence import DBConnector
-from Persistence.Entities import Rating
+from Service.DTO import RatingDto
 
 
 class RatingDao:
@@ -21,26 +21,26 @@ class RatingDao:
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection)
 
-    def create(self, rating: Rating) -> None:
+    def create(self, rating: RatingDto) -> None:
         """
         Creates book rating
         :param rating: a book rating
         """
 
-        command = """INSERT INTO rating ("bookId", "userId", rating) VALUES(%d, %d, %d)"""
+        command = """INSERT INTO rating ("bookId", "userId", rating) VALUES (%s, %s, %s)"""
         with DBConnector.create_connection() as connection:
             with connection.cursor() as cursor:
                 parameters = (rating.book_id, rating.user_id, rating.rating)
                 cursor.execute(command, parameters)
                 connection.commit()
 
-    def update(self, rating: Rating) -> None:
+    def update(self, rating: RatingDto) -> None:
         """
         Updates book rating
         :param rating: a book rating that is to be updated
         """
 
-        command = """UPDATE rating SET rating = %d WHERE "bookId" = %d AND "userId" = %d"""
+        command = """UPDATE rating SET rating = %s WHERE "bookId" = %s AND "userId" = %s"""
         with DBConnector.create_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(command, (rating.rating, rating.book_id, rating.user_id))
