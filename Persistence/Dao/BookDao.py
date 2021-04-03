@@ -90,7 +90,7 @@ class BookDao:
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, con=connection, params=(user_id, tuple(topics)))
 
-    def find_rated_books(self, user_id: int) -> DataFrame:
+    def find_rated_books(self, user_id: int) -> list:
         """
         Finds all books rated by the user
         :param user_id: an id of the user whose rated books will be returned
@@ -104,4 +104,6 @@ class BookDao:
                     WHERE r."userId" = %s"""
 
         with DBConnector.create_connection() as connection:
-            return sqlio.read_sql(query, params=(user_id,), con=connection)
+            with connection.cursor(cursor_factory=DictCursor) as cursor:
+                cursor.execute(query, (user_id,))
+                return cursor.fetchall()

@@ -4,8 +4,9 @@
     <h1>
         Books you have rated
     </h1>
-    <table class="table table-hover">
-        <thead>
+    {% if books and books|length > 0 %}
+        <table class="table table-hover">
+            <thead>
             <tr>
                 <th scope="col">Title</th>
                 <th scope="col">Author</th>
@@ -13,15 +14,18 @@
                 <th scope="col">Topic</th>
                 <th scope="col">Your rating</th>
             </tr>
-        </thead>
-        <tbody>
-            {% for index, book in books.iterrows() %}
-                <td>{{ book["title"] }}</td>
-                <td>{{ book["author"] }}</td>
-                <td>{{ book["pages"] }}</td>
-                <td>{{ book["topicName"] }}</td>
-                <td>{{ book["rating"] }}</td>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                    <tr>
+                        <td><a href="{{ url_for('book_detail', book_id=book['id']) }}">{{ book["title"] }}</a></td>
+                        <td>{{ book["author"] }}</td>
+                        <td>{{ book["pages"] }}</td>
+                        <td>{{ book["topicName"] }}</td>
+                        <td>{{ book["rating"] }}/5</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
 {% endblock %}

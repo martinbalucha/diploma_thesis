@@ -58,7 +58,7 @@ def logout():
 def rated_books():
     book_service = BookService(BookDao())
     books = book_service.rated_books(current_user.get_id())
-    if len(books.index) == 0:
+    if len(books) == 0:
         flash("You have not rated any books yet. Go and rate some!", "info")
         return redirect(url_for("index"))
     return render_template("ratedBooks.html", books=books)
