@@ -4,7 +4,7 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from googletrans import Translator
 from pandas import Series, DataFrame
-from Service.IPreprocessor import IPreprocessor
+from service.i_preprocessor import IPreprocessor
 
 
 class Preprocessor(IPreprocessor):

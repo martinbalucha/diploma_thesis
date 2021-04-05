@@ -1,4 +1,4 @@
-from WebApp import app
+from web_app import app
 
 if __name__ == "__main__":
     #nltk.download("stopwords")

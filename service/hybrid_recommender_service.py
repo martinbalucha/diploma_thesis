@@ -1,9 +1,7 @@
 import multiprocessing
-
 from pandas import DataFrame
-
-from Service import IDiversityService
-from Service.IRecommenderService import IRecommenderService
+from service import i_diversity_service
+from service.i_recommender_service import IRecommenderService
 
 
 class HybridRecommenderService(IRecommenderService):
@@ -14,10 +12,10 @@ class HybridRecommenderService(IRecommenderService):
 
     content_based_service: IRecommenderService
     matrix_factorization_service: IRecommenderService
-    diversity_service: IDiversityService
+    diversity_service: i_diversity_service
 
     def __init__(self, content_based_service: IRecommenderService, collaborative_filtering_service: IRecommenderService,
-                 diversity_service: IDiversityService):
+                 diversity_service: i_diversity_service):
         """
         Ctor
         :param content_based_service: Content-based recommendation service

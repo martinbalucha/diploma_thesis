@@ -2,7 +2,7 @@
 
 class RatingDto:
     """
-    DTO for rating
+    dto for rating
     """
 
     user_id: int

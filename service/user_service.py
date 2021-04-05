@@ -1,5 +1,5 @@
-from WebApp import bcrypt
-from Persistence.Dao import UserDao
+from web_app import bcrypt
+from persistence.dao import user_dao
 
 
 class UserService:
@@ -8,9 +8,9 @@ class UserService:
     users
     """
 
-    _user_dao: UserDao
+    _user_dao: user_dao
 
-    def __init__(self, user_dao: UserDao):
+    def __init__(self, user_dao: user_dao):
         """
         Ctor
         :param user_dao: data access object for users

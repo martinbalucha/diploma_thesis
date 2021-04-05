@@ -3,7 +3,7 @@ import random
 from pandas import DataFrame
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-from Service.IDiversityService import IDiversityService
+from service.i_diversity_service import IDiversityService
 
 
 class DiversityService(IDiversityService):

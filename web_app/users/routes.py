@@ -1,9 +1,9 @@
 from flask import Blueprint, redirect, url_for, flash, render_template
 from flask_login import current_user, login_user, logout_user
-from Persistence.Dao.UserDao import UserDao
-from Service.UserService import UserService
-from WebApp.models.models import User
-from WebApp.users.forms import LoginForm, RegistrationForm
+from persistence.dao.user_dao import UserDao
+from service.user_service import UserService
+from web_app.models.models import User
+from web_app.users.forms import LoginForm, RegistrationForm
 
 users = Blueprint("users", __name__)
 

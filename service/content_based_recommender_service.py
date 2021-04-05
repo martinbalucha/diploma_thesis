@@ -1,11 +1,11 @@
 import random
 import numpy
 from pandas import DataFrame
-from Persistence.Dao import BookDao
+from persistence.dao import book_dao
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-from Service import IPreprocessor
-from Service.IRecommenderService import IRecommenderService
+from service import i_preprocessor
+from service.i_recommender_service import IRecommenderService
 
 
 class ContentBasedRecommenderService(IRecommenderService):
@@ -13,11 +13,11 @@ class ContentBasedRecommenderService(IRecommenderService):
     A service class that performs content-based recommendations. Implements IRecommenderService
     """
 
-    preprocessor: IPreprocessor
+    preprocessor: i_preprocessor
     tfidf_vectorizer: TfidfVectorizer
-    book_dao: BookDao
+    book_dao: book_dao
 
-    def __init__(self, preprocessor: IPreprocessor, book_dao: BookDao, tfidf_vectorizer: TfidfVectorizer):
+    def __init__(self, preprocessor: i_preprocessor, book_dao: book_dao, tfidf_vectorizer: TfidfVectorizer):
         """
         Ctor
         :param preprocessor: content pre-processor

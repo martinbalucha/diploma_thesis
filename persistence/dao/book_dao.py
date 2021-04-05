@@ -1,8 +1,8 @@
-from DTO.Filters.BookFilter import BookFilter
+from dto.Filters.book_filter import BookFilter
 from pandas import DataFrame
 import pandas.io.sql as sqlio
 from psycopg2.extras import DictCursor, RealDictCursor
-from Persistence import DBConnector, QueryStorage
+from persistence import db_connector, query_storage
 
 
 class BookDao:
@@ -24,7 +24,7 @@ class BookDao:
                     LEFT JOIN rating r ON r."bookId" = b.id AND r."userId" = %s
                     WHERE b.id = %s"""
 
-        with DBConnector.create_connection() as connection:
+        with db_connector.create_connection() as connection:
             with connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, (book_filter.user_id, book_filter.book_id,))
                 return cursor.fetchone()
@@ -41,7 +41,7 @@ class BookDao:
                     WHERE "userId" = %s AND rating > 3
                     ORDER BY r.rating DESC"""
 
-        with DBConnector.create_connection() as connection:
+        with db_connector.create_connection() as connection:
             return sqlio.read_sql(query, connection, params=[user_id])
 
     def get_candidate_books_collaborative(self, user_id: int) -> DataFrame:
@@ -54,7 +54,7 @@ class BookDao:
         query = """SELECT b.*, t.name as "topicName" FROM book b 
                     INNER JOIN topic t on b.topic = t.id
                     WHERE b.id IN (SELECT "bookId" FROM rating WHERE "userId" != %s)"""
-        with DBConnector.create_connection() as connection:
+        with db_connector.create_connection() as connection:
             return sqlio.read_sql(query, connection, params=(user_id,))
 
     def find_books(self, book_filter: BookFilter) -> tuple:
@@ -64,14 +64,14 @@ class BookDao:
         :return: a list of dictionaries containing information about found books
         """
 
-        query = QueryStorage.find_books_query()
-        book_count_query = QueryStorage.find_books_count_query()
+        query = query_storage.find_books_query()
+        book_count_query = query_storage.find_books_count_query()
         title_wildcard = self._add_wildcard_to_string(book_filter.title)
         author_wildcard = self._add_wildcard_to_string(book_filter.author, True)
         parameters = (title_wildcard, author_wildcard, book_filter.page_size,
                       (book_filter.page_number - 1) * book_filter.page_size )
 
-        with DBConnector.create_connection() as connection:
+        with db_connector.create_connection() as connection:
             with connection.cursor(cursor_factory=DictCursor) as cursor:
                 cursor.execute(book_count_query, (title_wildcard, author_wildcard))
                 count = cursor.fetchone()["count"]
@@ -108,7 +108,7 @@ class BookDao:
                     WHERE (r."userId" IS DISTINCT FROM %s) AND b.language = 1
                     AND t.id IN %s"""
 
-        with DBConnector.create_connection() as connection:
+        with db_connector.create_connection() as connection:
             return sqlio.read_sql(query, con=connection, params=(user_id, tuple(topics)))
 
     def find_rated_books(self, book_filter: BookFilter) -> tuple:
@@ -118,10 +118,10 @@ class BookDao:
         :return: a dataframe of all books rated by the given user
         """
 
-        query = QueryStorage.rated_books_query()
-        rated_book_count_query = QueryStorage.rated_books_count_query()
+        query = query_storage.rated_books_query()
+        rated_book_count_query = query_storage.rated_books_count_query()
         parameters = (book_filter.user_id, book_filter.page_size, (book_filter.page_number - 1) * book_filter.page_size)
-        with DBConnector.create_connection() as connection:
+        with db_connector.create_connection() as connection:
             with connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(rated_book_count_query, (book_filter.user_id,))
                 count = cursor.fetchone()["count"]

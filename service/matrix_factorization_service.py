@@ -1,7 +1,7 @@
 from pandas import Series, DataFrame
 from surprise import SVD, Reader, accuracy, Dataset
-from Persistence.Dao import RatingDao, BookDao
-from Service.IRecommenderService import IRecommenderService
+from persistence.dao import rating_dao, book_dao
+from service.i_recommender_service import IRecommenderService
 
 
 class MatrixFactorizationService(IRecommenderService):
@@ -10,10 +10,10 @@ class MatrixFactorizationService(IRecommenderService):
     """
 
     svd: SVD
-    rating_dao: RatingDao
-    book_dao: BookDao
+    rating_dao: rating_dao
+    book_dao: book_dao
 
-    def __init__(self, svd: SVD, rating_dao: RatingDao, book_dao: BookDao):
+    def __init__(self, svd: SVD, rating_dao: rating_dao, book_dao: book_dao):
         """
         Ctor
         :param svd: a singular value decomposition

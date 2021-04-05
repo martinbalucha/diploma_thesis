@@ -4,18 +4,18 @@ from flask_paginate import Pagination
 from nltk import PorterStemmer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from surprise import SVD
-from DTO.Filters.BookFilter import BookFilter
-from DTO.RatingDto import RatingDto
-from Persistence.Dao.BookDao import BookDao
-from Persistence.Dao.RatingDao import RatingDao
-from Service.BookService import BookService
-from Service.ContentBasedRecommenderService import ContentBasedRecommenderService
-from Service.DiversityService import DiversityService
-from Service.HybridRecommenderService import HybridRecommenderService
-from Service.MatrixFactorizationService import MatrixFactorizationService
-from Service.Preprocessor import Preprocessor
-from Service.RatingService import RatingService
-from WebApp.books.forms import BookDetailForm
+from dto.Filters.book_filter import BookFilter
+from dto.rating_dto import RatingDto
+from persistence.dao.book_dao import BookDao
+from persistence.dao.rating_dao import RatingDao
+from service.book_service import BookService
+from service.content_based_recommender_service import ContentBasedRecommenderService
+from service.diversity_service import DiversityService
+from service.hybrid_recommender_service import HybridRecommenderService
+from service.matrix_factorization_service import MatrixFactorizationService
+from service.preprocessor import Preprocessor
+from service.rating_service import RatingService
+from web_app.books.forms import BookDetailForm
 
 books = Blueprint("books", __name__)
 
@@ -26,14 +26,14 @@ def rated_books():
     book_service = BookService(BookDao())
     page_number = request.args.get("page", 1, type=int)
     book_filter = BookFilter(20, page_number, user_id=current_user.get_id())
-    books, total_count = book_service.find_rated_books(book_filter)
-    pagination = Pagination(page=page_number, per_page=20, total=total_count, items=books,
+    rated_books, total_count = book_service.find_rated_books(book_filter)
+    pagination = Pagination(page=page_number, per_page=20, total=total_count, items=rated_books,
                             css_framework='bootstrap4', record_name="books")
 
-    if len(books) == 0:
+    if len(rated_books) == 0:
         flash("You have not rated any books yet. Go and rate some!", "info")
         return redirect(url_for("main.index"))
-    return render_template("ratedBooks.html", books=books, pagination=pagination)
+    return render_template("ratedBooks.html", books=rated_books, pagination=pagination)
 
 
 @books.route("/find")

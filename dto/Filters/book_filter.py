@@ -1,4 +1,4 @@
-from DTO.Filters.FilterBase import FilterBase
+from dto.Filters.filter_base import FilterBase
 
 
 class BookFilter(FilterBase):

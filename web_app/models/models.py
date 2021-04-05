@@ -1,7 +1,7 @@
 from flask_login import UserMixin
-from Persistence.Dao.UserDao import UserDao
-from Service.UserService import UserService
-from WebApp import login_manager
+from persistence.dao.user_dao import UserDao
+from service.user_service import UserService
+from web_app import login_manager
 
 
 class User(UserMixin):

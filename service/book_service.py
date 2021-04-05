@@ -1,16 +1,16 @@
 from pandas import DataFrame
-from DTO.Filters.BookFilter import BookFilter
-from Persistence.Dao import BookDao
+from dto.Filters.book_filter import BookFilter
+from persistence.dao import book_dao
 
 
 class BookService:
     """
-    Service class for operation on books
+    service class for operation on books
     """
 
-    _book_dao: BookDao
+    _book_dao: book_dao
 
-    def __init__(self, book_dao: BookDao):
+    def __init__(self, book_dao: book_dao):
         """
         Ctor
         :param book_dao: DAO for books

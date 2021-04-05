@@ -1,5 +1,5 @@
-from Persistence.Dao.RatingDao import RatingDao
-from DTO.RatingDto import RatingDto
+from persistence.dao.rating_dao import RatingDao
+from dto.rating_dto import RatingDto
 
 
 class RatingService:
@@ -20,7 +20,7 @@ class RatingService:
     def create(self, rating: RatingDto):
         """
         Creates a new rating
-        :param rating: DTO for rating
+        :param rating: dto for rating
         """
 
         self._rating_dao.create(rating)
