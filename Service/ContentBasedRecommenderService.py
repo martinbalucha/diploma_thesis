@@ -6,7 +6,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from Service import IPreprocessor
 from Service.IRecommenderService import IRecommenderService
-from Service.Utils.DataframeUtils import get_index_from_id
 
 
 class ContentBasedRecommenderService(IRecommenderService):
@@ -67,7 +66,7 @@ class ContentBasedRecommenderService(IRecommenderService):
         :return: dataframe filled with recommended books
         """
 
-        index = get_index_from_id(books, book_id)
+        index = self._get_index_from_id(books, book_id)
         similarity_scores = list(enumerate(similarities[index]))
         similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
         most_similar_books = similarity_scores[1:count + 1]

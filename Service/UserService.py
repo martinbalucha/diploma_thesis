@@ -30,7 +30,7 @@ class UserService:
         user = self._user_dao.get_user_by_login(username)
         is_password_correct = False
         if user is not None:
-            user_password = user[2]
+            user_password = user["passwordHash"]
             is_password_correct = bcrypt.check_password_hash(password=password, pw_hash=user_password)
         return is_password_correct, user
 

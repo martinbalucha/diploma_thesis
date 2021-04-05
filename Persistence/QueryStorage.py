@@ -52,3 +52,64 @@ def find_books_count_query() -> str:
                 AND author ILIKE COALESCE(%s, author)"""
 
     return query
+
+
+def find_user_by_id_query() -> str:
+    """
+    Creates query for retrieving user by ID
+    :return: query for retrieving user by ID
+    """
+    query = """SELECT id, username FROM registered_user WHERE id = %s"""
+    return query
+
+
+def find_user_by_login_query() -> str:
+    """
+    Creates query for retrieving user by ID
+    :return:
+    """
+
+    query = """SELECT id, username, "passwordHash" FROM registered_user WHERE username = %s"""
+    return query
+
+
+def insert_user_query() -> str:
+    """
+    Creates query for user insert
+    :return: query for user insert
+    """
+
+    query = """INSERT INTO registered_user (username, "passwordHash") VALUES (%s, %s)"""
+    return query
+
+
+def update_rating_query() -> str:
+    """
+    Creates query for rating update
+    :return: query for rating update
+    """
+
+    query = """UPDATE rating SET rating = %s WHERE "bookId" = %s AND "userId" = %s"""
+    return query
+
+
+def insert_rating_query() -> str:
+    """
+    Creates query for rating insert
+    :return: query for rating insert
+    """
+
+    query = """INSERT INTO rating ("bookId", "userId", rating) VALUES (%s, %s, %s)"""
+    return query
+
+
+def user_item_matrix_query() -> str:
+    """
+    Creates query for user-item matrix
+    :return: query for user-item matrix
+    """
+
+    query = """SELECT "userId", "bookId", rating FROM rating LEFT JOIN book ON book.id = rating."bookId"
+                WHERE book.language = 1"""
+
+    return query

@@ -1,6 +1,6 @@
 from pandas import DataFrame
 import pandas.io.sql as sqlio
-from Persistence import DBConnector
+from Persistence import DBConnector, QueryStorage
 from DTO import RatingDto
 
 
@@ -14,10 +14,8 @@ class RatingDao:
         Returns user-item matrix in a dataframe
         :return: a dataframe of book ratings of each user
         """
-        query = """SELECT "userId", "bookId", rating FROM rating
-                    LEFT JOIN book ON book.id = rating."bookId"
-                    WHERE book.language = 1"""
 
+        query = QueryStorage.user_item_matrix_query()
         with DBConnector.create_connection() as connection:
             return sqlio.read_sql(query, connection)
 
@@ -27,11 +25,11 @@ class RatingDao:
         :param rating: a book rating
         """
 
-        command = """INSERT INTO rating ("bookId", "userId", rating) VALUES (%s, %s, %s)"""
+        query = QueryStorage.insert_rating_query()
         with DBConnector.create_connection() as connection:
             with connection.cursor() as cursor:
                 parameters = (rating.book_id, rating.user_id, rating.rating)
-                cursor.execute(command, parameters)
+                cursor.execute(query, parameters)
                 connection.commit()
 
     def update(self, rating: RatingDto) -> None:
@@ -40,8 +38,8 @@ class RatingDao:
         :param rating: a book rating that is to be updated
         """
 
-        command = """UPDATE rating SET rating = %s WHERE "bookId" = %s AND "userId" = %s"""
+        query = QueryStorage.update_rating_query()
         with DBConnector.create_connection() as connection:
             with connection.cursor() as cursor:
-                cursor.execute(command, (rating.rating, rating.book_id, rating.user_id))
+                cursor.execute(query, (rating.rating, rating.book_id, rating.user_id))
                 connection.commit()

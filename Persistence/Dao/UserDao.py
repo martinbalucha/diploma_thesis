@@ -1,4 +1,5 @@
-from Persistence import DBConnector
+from psycopg2.extras import RealDictCursor
+from Persistence import DBConnector, QueryStorage
 
 
 class UserDao:
@@ -14,9 +15,9 @@ class UserDao:
         login exists
         """
 
-        query = """SELECT id, username, "passwordHash" FROM registered_user WHERE username = %s"""
+        query = QueryStorage.find_user_by_login_query()
         with DBConnector.create_connection() as connection:
-            with connection.cursor() as cursor:
+            with connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, (login,))
                 return cursor.fetchone()
 
@@ -28,9 +29,9 @@ class UserDao:
         Null if the user was not found 
         """
 
-        query = """SELECT id, username FROM registered_user WHERE id = %s"""
+        query = QueryStorage.find_user_by_id_query()
         with DBConnector.create_connection() as connection:
-            with connection.cursor() as cursor:
+            with connection.cursor(cursor_factory=RealDictCursor) as cursor:
                 cursor.execute(query, (user_id,))
                 return cursor.fetchone()
 
@@ -41,8 +42,7 @@ class UserDao:
         :param password_hash: hashed password of the new user
         """
 
-        query = """INSERT INTO registered_user (username, "passwordHash") VALUES (%s, %s)"""
-
+        query = QueryStorage.insert_user_query()
         with DBConnector.create_connection() as connection:
             with connection.cursor() as cursor:
                 cursor.execute(query, (username, password_hash))

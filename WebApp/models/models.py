@@ -1,4 +1,7 @@
 from flask_login import UserMixin
+from Persistence.Dao.UserDao import UserDao
+from Service.UserService import UserService
+from WebApp import login_manager
 
 
 class User(UserMixin):
@@ -7,7 +10,7 @@ class User(UserMixin):
     https://github.com/maxcountryman/flask-login/blob/main/test_login.py
     """
 
-    def __init__(self, name: str, user_id: int, active: bool=True):
+    def __init__(self, name: str, user_id: int, active: bool = True):
         """
 
         :param name: a name of the user
@@ -27,11 +30,14 @@ class User(UserMixin):
         return self.active
 
 
-def map_tuple_to_user_object(user_tuple: tuple) -> User:
+@login_manager.user_loader
+def find_user(user_id: int) -> User:
     """
-    Maps tuple loaded from the DB to the User object
-    :param user_tuple: a user tuple loaded from the DB
-    :return: User object filled with information from the tuple
+    Loads user with the given ID
+    :param user_id: ID of the user that is to be found
+    :return: user with information from DB
     """
 
-    return User(user_tuple[1], user_tuple[0])
+    user_service = UserService(UserDao())
+    user_tuple = user_service.get_user_by_id(user_id)
+    return User(user_tuple["username"], user_tuple["id"])

@@ -6,11 +6,13 @@
             <fieldset class="form-group">
                 <label class="form-label">Title starting with</label>
 				<div class="form-group">
-					<input type="text" class="form-control" name="title" {% if filter_data %} value={{filter_data.title}} {% endif %}>
+					<input type="text" class="form-control" name="title" {% if filter_data.title is not none %}
+                           value={{filter_data.title}} {% endif %}>
 				</div>
                 <label class="form-label">Author</label>
 				<div class="form-group">
-					<input type="text" class="form-control" name="author" {% if filter_data %} value={{filter_data.author}} {% endif %} >
+					<input type="text" class="form-control" name="author" {% if filter_data.author is not none %} \
+                           value={{filter_data.author}} {% endif %} >
 				</div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-success">Search</button>
@@ -28,7 +30,7 @@
                         <tbody>
                             {% for book in books %}
                                 <tr>
-                                    <td><a href="{{ url_for('book_detail', book_id=book['id']) }}">{{ book["title"] }}</a></td>
+                                    <td><a href="{{ url_for('books.book_detail', book_id=book['id']) }}">{{ book["title"] }}</a></td>
                                     <td>{{ book["author"] }}</td>
                                     <td>{{ book["pages"] }}</td>
                                     <td>{{ book["topicName"] }}</td>

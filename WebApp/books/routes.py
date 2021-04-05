@@ -1,61 +1,26 @@
-from flask_login import login_user, current_user, logout_user, login_required
+from flask import Blueprint, session, render_template, redirect, url_for, flash, request
+from flask_login import current_user, login_required
 from flask_paginate import Pagination
+from nltk import PorterStemmer
+from sklearn.feature_extraction.text import TfidfVectorizer
+from surprise import SVD
 from DTO.Filters.BookFilter import BookFilter
+from DTO.RatingDto import RatingDto
 from Persistence.Dao.BookDao import BookDao
 from Persistence.Dao.RatingDao import RatingDao
 from Service.BookService import BookService
-from DTO.RatingDto import RatingDto
+from Service.ContentBasedRecommenderService import ContentBasedRecommenderService
+from Service.DiversityService import DiversityService
+from Service.HybridRecommenderService import HybridRecommenderService
+from Service.MatrixFactorizationService import MatrixFactorizationService
+from Service.Preprocessor import Preprocessor
 from Service.RatingService import RatingService
-from WebApp import app, login_manager
-from WebApp.models.models import User, map_tuple_to_user_object
-from Persistence.Dao.UserDao import UserDao
-from flask import render_template, flash, redirect, url_for, request, session
-from WebApp.forms import LoginForm, RegistrationForm, BookDetailForm
-from Service.UserService import UserService
+from WebApp.books.forms import BookDetailForm
+
+books = Blueprint("books", __name__)
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
-
-
-@app.route("/login", methods=["POST", "GET"])
-def login():
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-    login_form = LoginForm()
-    if login_form.validate_on_submit():
-        user_service = UserService(UserDao())
-        is_correct, user_tuple = user_service.authenticate(login_form.username.data, login_form.password.data)
-        if is_correct:
-            user = map_tuple_to_user_object(user_tuple)
-            login_user(user, True)
-            flash(f"Welcome, {user.name}!", "success")
-            return redirect(url_for("index"))
-        flash("Username or password were incorrect!")
-    return render_template("login.html", form=login_form)
-
-
-@app.route("/register", methods=["POST", "GET"])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for("index"))
-    registration_form = RegistrationForm()
-    if registration_form.validate_on_submit():
-        user_service = UserService(UserDao())
-        user_service.register(registration_form.username.data, registration_form.password.data)
-        flash(f"User {registration_form.username.data} successfully created!", "success")
-        return redirect(url_for("login"))
-    return render_template("register.html", form=registration_form)
-
-
-@app.route("/logout")
-def logout():
-    logout_user()
-    return redirect(url_for("index"))
-
-
-@app.route("/rated_books", methods=("POST", "GET"))
+@books.route("/rated_books", methods=("POST", "GET"))
 @login_required
 def rated_books():
     book_service = BookService(BookDao())
@@ -67,11 +32,11 @@ def rated_books():
 
     if len(books) == 0:
         flash("You have not rated any books yet. Go and rate some!", "info")
-        return redirect(url_for("index"))
+        return redirect(url_for("main.index"))
     return render_template("ratedBooks.html", books=books, pagination=pagination)
 
 
-@app.route("/find")
+@books.route("/find")
 def find_books():
     page_number = request.args.get("page", 1, type=int)
     author = request.args.get("author")
@@ -85,7 +50,7 @@ def find_books():
     return render_template("findBooks.html", books=results, pagination=pagination, filter_data=book_filter)
 
 
-@app.route("/book/<book_id>", methods=["GET", "POST"])
+@books.route("/book/<book_id>", methods=["GET", "POST"])
 def book_detail(book_id: int):
     detail_form = BookDetailForm()
     if request.method == "POST":
@@ -98,7 +63,7 @@ def book_detail(book_id: int):
                 rating_service.create(rating_dto)
             flash("Rating successfully saved", "success")
             session.pop("already_rated")
-            return redirect(url_for("book_detail", book_id=book_id))
+            return redirect(url_for("books.book_detail", book_id=book_id))
     else:
         book_service = BookService(BookDao())
         book_filter = BookFilter(0, 0, book_id=book_id, user_id=current_user.get_id())
@@ -107,31 +72,15 @@ def book_detail(book_id: int):
         return render_template("bookDetail.html", form=detail_form, book=required_book)
 
 
-@app.route("/recommend")
+@books.route("/recommend")
 @login_required
 def recommend():
-    pass
-    """
     preprocessor = Preprocessor(PorterStemmer())
     vectorizer = TfidfVectorizer()
     content_based = ContentBasedRecommenderService(preprocessor, BookDao(), vectorizer)
     matrix_factorization = MatrixFactorizationService(SVD(n_factors=20), RatingDao(), BookDao())
     diversity_service = DiversityService(vectorizer)
     recommender_service = HybridRecommenderService(content_based, matrix_factorization, diversity_service)
-    result = recommender_service.recommend(320562, 20)
-    #kek = content_based.recommend(320562, 10)
-    #keke = matrix_factorization.recommend(320562, 10)
-    """
-
-
-@login_manager.user_loader
-def find_user(user_id: int) -> User:
-    """
-    Loads user with the given ID
-    :param user_id: ID of the user that is to be found
-    :return: user with information from DB
-    """
-
-    user_service = UserService(UserDao())
-    user_tuple = user_service.get_user_by_id(user_id)
-    return map_tuple_to_user_object(user_tuple)
+    result = recommender_service.recommend(current_user.get_id(), 20)
+    # kek = content_based.recommend(320562, 10)
+    # keke = matrix_factorization.recommend(320562, 10)
