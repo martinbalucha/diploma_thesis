@@ -2,17 +2,19 @@
 {% block title %} Find books{% endblock %}
 {% block content %}
     <div class="content-section">
-        <form method="post">
-            {{ form.hidden_tag() }}
+        <form method="GET">
             <fieldset class="form-group">
+                <label class="form-label">Title starting with</label>
+				<div class="form-group">
+					<input type="text" class="form-control" name="title" {% if filter_data %} value={{filter_data.title}} {% endif %}>
+				</div>
+                <label class="form-label">Author</label>
+				<div class="form-group">
+					<input type="text" class="form-control" name="author" {% if filter_data %} value={{filter_data.author}} {% endif %} >
+				</div>
                 <div class="form-group">
-                    {{ form.book_title.label(class="form-control-label") }}
-                    {{ form.book_title(class="form-control from-control-lg") }}
+                    <button type="submit" class="btn btn-success">Search</button>
                 </div>
-                <div class="form-group">
-                    {{ form.submit(class="btn btn-success") }}
-                </div>
-
                 {% if books and books|length > 0 %}
                     <table class="table table-hover">
                         <thead>
@@ -34,6 +36,8 @@
                             {% endfor %}
                         </tbody>
                     </table>
+                    {{ pagination.info }}
+                    {{ pagination.links }}
                 {% endif %}
             </fieldset>
         </form>

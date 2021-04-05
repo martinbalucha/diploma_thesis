@@ -24,15 +24,6 @@ class LoginForm(FlaskForm):
     submit = SubmitField("Log in")
 
 
-class SearchForm(FlaskForm):
-    """
-    A form for finding books
-    """
-
-    book_title = StringField("Title starts with", validators=[DataRequired()])
-    submit = SubmitField("Search")
-
-
 class BookDetailForm(FlaskForm):
     """
     A book detail form

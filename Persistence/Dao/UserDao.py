@@ -1,5 +1,3 @@
-import pandas.io.sql as sqlio
-from pandas import DataFrame
 from Persistence import DBConnector
 
 

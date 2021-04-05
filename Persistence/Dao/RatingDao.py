@@ -1,7 +1,7 @@
 from pandas import DataFrame
 import pandas.io.sql as sqlio
 from Persistence import DBConnector
-from Service.DTO import RatingDto
+from DTO import RatingDto
 
 
 class RatingDao:

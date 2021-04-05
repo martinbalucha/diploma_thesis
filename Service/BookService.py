@@ -1,4 +1,5 @@
 from pandas import DataFrame
+from DTO.Filters.BookFilter import BookFilter
 from Persistence.Dao import BookDao
 
 
@@ -14,32 +15,32 @@ class BookService:
         Ctor
         :param book_dao: DAO for books
         """
+
         self._book_dao = book_dao
 
-    def rated_books(self, user_id: int) -> DataFrame:
+    def find_rated_books(self, book_filter: BookFilter) -> DataFrame:
         """
         Finds all books rated by the user with given ID
-        :param user_id: ID of the user whose rated books will be found
+        :param book_filter: a book filter
         :return: a dataframe containing all books rated by the user and their ratings
         """
 
-        return self._book_dao.find_rated_books(user_id)
+        return self._book_dao.find_rated_books(book_filter)
 
-    def find_book(self, book_id: int, user_id: int) -> dict:
+    def find_book(self, book_filter: BookFilter) -> dict:
         """
         Finds the book with the given ID
-        :param book_id: ID of the book
-        :param user_id: ID of the target user
+        :param book_filter: book filter
         :return: a dictionary with book information. None, if does not exist
         """
 
-        return self._book_dao.find_book_by_id(book_id, user_id)
+        return self._book_dao.find_book_by_id(book_filter)
 
-    def find_book_by_title(self, book_title: str) -> DataFrame:
+    def find_book_by_title(self, book_filter: BookFilter) -> tuple:
         """
         Finds books which have title starting with the given parameter
-        :param book_title: a title of the wanted book
+        :param book_filter: book filter
         :return: a dataframe containing books withe the given title
         """
 
-        return self._book_dao.find_books_by_title(book_title.lower())
+        return self._book_dao.find_books(book_filter)

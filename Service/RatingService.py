@@ -1,5 +1,5 @@
 from Persistence.Dao.RatingDao import RatingDao
-from Service.DTO.RatingDto import RatingDto
+from DTO.RatingDto import RatingDto
 
 
 class RatingService:
