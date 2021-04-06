@@ -1,8 +1,6 @@
-import swifter
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from googletrans import Translator
 from pandas import Series, DataFrame
 from service.i_preprocessor import IPreprocessor
 
@@ -13,13 +11,12 @@ class Preprocessor(IPreprocessor):
     """
 
     stemmer: PorterStemmer
-    stop_words: dict
+    stop_words: set
 
     def __init__(self, stemmer: PorterStemmer):
         """
         Ctor
         :param stemmer: the word stemmer
-        :param translator: the tool used for translation from other
         languages to English
         """
 
@@ -40,8 +37,8 @@ class Preprocessor(IPreprocessor):
         return separator.join(preprocessed_words)
 
     def preprocess(self, data_frame: DataFrame) -> DataFrame:
-        data_frame["author"] = data_frame.swifter.apply(self._adjust_author_name, axis=1)
         data_frame.reset_index(drop=True, inplace=True)
+        data_frame["authorName"] = data_frame.swifter.apply(self._adjust_author_name, axis=1)
         data_frame["bagOfWords"] = data_frame.swifter.apply(self._build_features, axis=1)
         data_frame["bagOfWords"] = data_frame.swifter.apply(self._preprocess, axis=1)
         return data_frame
@@ -93,5 +90,5 @@ class Preprocessor(IPreprocessor):
         :return: combined feature of the book
         """
 
-        return (book["title"] + " " + book["author"] + " " + book["description"] + " " + book["tableOfContents"] + " "
-                + book["topicName"] + " " + book["topicName"] + " " + book["topicName"])
+        return (book["title"] + " " + book["authorName"] + " " + book["description"] + " "
+                + book["tableOfContents"] + " " + book["topicName"])

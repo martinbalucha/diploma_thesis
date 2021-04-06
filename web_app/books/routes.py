@@ -26,14 +26,14 @@ def rated_books():
     book_service = BookService(BookDao())
     page_number = request.args.get("page", 1, type=int)
     book_filter = BookFilter(20, page_number, user_id=current_user.get_id())
-    rated_books, total_count = book_service.find_rated_books(book_filter)
-    pagination = Pagination(page=page_number, per_page=20, total=total_count, items=rated_books,
+    books_rated, total_count = book_service.find_rated_books(book_filter)
+    pagination = Pagination(page=page_number, per_page=20, total=total_count, items=books_rated,
                             css_framework='bootstrap4', record_name="books")
 
-    if len(rated_books) == 0:
+    if len(books_rated) == 0:
         flash("You have not rated any books yet. Go and rate some!", "info")
         return redirect(url_for("main.index"))
-    return render_template("ratedBooks.html", books=rated_books, pagination=pagination)
+    return render_template("ratedBooks.html", books=books_rated, pagination=pagination)
 
 
 @books.route("/find")
@@ -81,6 +81,9 @@ def recommend():
     matrix_factorization = MatrixFactorizationService(SVD(n_factors=20), RatingDao(), BookDao())
     diversity_service = DiversityService(vectorizer)
     recommender_service = HybridRecommenderService(content_based, matrix_factorization, diversity_service)
-    result = recommender_service.recommend(current_user.get_id(), 20)
-    # kek = content_based.recommend(320562, 10)
-    # keke = matrix_factorization.recommend(320562, 10)
+    recommended_books = recommender_service.recommend(current_user.get_id(), 20).to_dict("records")
+
+    if len(recommended_books) == 0:
+        flash("You have not rated any books yet. There is nothing to base our recommendations on!", "info")
+        return redirect(url_for("main.index"))
+    return render_template("recommendations.html", books=recommended_books)

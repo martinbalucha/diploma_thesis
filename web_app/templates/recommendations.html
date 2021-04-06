@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %} Your rated books {% endblock %}
+{% block content %}
+    <h1>
+        Books you have rated
+    </h1>
+    {% if books and books|length > 0 %}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">Title</th>
+                <th scope="col">Author</th>
+                <th scope="col">Pages</th>
+                <th scope="col">Topic</th>
+            </tr>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                    <tr>
+                        <td><a href="{{ url_for('books.book_detail', book_id=book['id']) }}">{{ book["title"] }}</a></td>
+                        <td>{{ book["author"] }}</td>
+                        <td>{{ book["pages"] }}</td>
+                        <td>{{ book["topicName"] }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+{% endblock %}

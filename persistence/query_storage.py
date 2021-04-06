@@ -113,3 +113,17 @@ def user_item_matrix_query() -> str:
                 WHERE book.language = 1"""
 
     return query
+
+def find_candidate_books_query() -> str:
+    """
+    Creates query for retrieving books that will be filtered by content
+    :return: query for retrieving books that will be filtered by content
+    """
+
+    query = """SELECT DISTINCT b.*, t.name as "topicName" FROM book b
+                LEFT JOIN rating r ON b.id = r."bookId"
+                INNER JOIN topic t ON t.id = b.topic
+                WHERE (r."userId" IS DISTINCT FROM %s) AND b.language = 1
+                AND t.id IN %s"""
+
+    return query

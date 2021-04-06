@@ -1,5 +1,4 @@
 import random
-
 from pandas import DataFrame
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
@@ -51,7 +50,7 @@ class DiversityService(IDiversityService):
         :param selected_books: a list of already selected books' ids
         :param recommended_books: a dataframe of books recommended by the filtering algorithms
         :return: the least similar book that has not yet been selected. If all books have been selected,
-        None will be returned - this scenario should not occur, though
+        -1 will be returned - this scenario should not occur, though
         """
 
         similarity_scores = list(enumerate(cosine_similarities[book_index]))
@@ -62,4 +61,4 @@ class DiversityService(IDiversityService):
             if book_id not in selected_books:
                 return similar_book[0]
 
-        return None
+        return -1

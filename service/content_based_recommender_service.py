@@ -1,10 +1,11 @@
 import random
 import numpy
+import pandas
 from pandas import DataFrame
-from persistence.dao import book_dao
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-from service import i_preprocessor
+from persistence.dao.book_dao import BookDao
+from service.i_preprocessor import IPreprocessor
 from service.i_recommender_service import IRecommenderService
 
 
@@ -13,11 +14,11 @@ class ContentBasedRecommenderService(IRecommenderService):
     A service class that performs content-based recommendations. Implements IRecommenderService
     """
 
-    preprocessor: i_preprocessor
+    preprocessor: IPreprocessor
     tfidf_vectorizer: TfidfVectorizer
-    book_dao: book_dao
+    book_dao: BookDao
 
-    def __init__(self, preprocessor: i_preprocessor, book_dao: book_dao, tfidf_vectorizer: TfidfVectorizer):
+    def __init__(self, preprocessor: IPreprocessor, book_dao: BookDao, tfidf_vectorizer: TfidfVectorizer):
         """
         Ctor
         :param preprocessor: content pre-processor
@@ -31,51 +32,53 @@ class ContentBasedRecommenderService(IRecommenderService):
 
     def recommend(self, user_id: int, count: int) -> DataFrame:
         best_rated_books = self.book_dao.get_best_rated_books(user_id)
-        selected_best_books, topics = self._select_best_rated_books(best_rated_books, 5)
+        selected_best_books, topics = self._select_best_rated_books(best_rated_books, 3)
         books = self.book_dao.find_candidate_books(user_id, topics)
         books = books.append(selected_best_books)
+        best_rated_books_ids = best_rated_books.set_index("id").T.to_dict("list")
+        print(best_rated_books_ids)
 
         books = self.preprocessor.preprocess(books)
         tfidf_matrix = self.tfidf_vectorizer.fit_transform(books["bagOfWords"])
         cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
 
-        recommendations = DataFrame(columns=books.columns)
+        recommendations = {}
         selected_best_books_count = len(selected_best_books)
         similar_per_book = count // selected_best_books_count
 
         for i in range(selected_best_books_count):
             book = selected_best_books[i]
-
             if i == selected_best_books_count - 1:
                 similar_per_book += count % selected_best_books_count
+            index = self._get_index_from_id(books, book["id"])
+            similarity_scores = list(enumerate(cosine_similarities[index]))
+            similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+            self._select_similar_books(similarity_scores, books, best_rated_books_ids, similar_per_book,
+                                       recommendations)
 
-            recommendations = self._select_similar_books(cosine_similarities, books, book["id"],
-                                                         similar_per_book, recommendations)
+        result_df = pandas.DataFrame.from_dict(recommendations, orient="index")
+        return result_df
 
-        return recommendations
-
-    def _select_similar_books(self, similarities: numpy.ndarray, books: DataFrame, book_id: int, count: int,
-                              recommendations: DataFrame) -> DataFrame:
+    def _select_similar_books(self, similarity_scores: list, books: DataFrame, best_rated_books: dict, count: int,
+                              recommendations: dict) -> None:
         """
         Selects the most similar books to the one with the given ID and appends them
         to the result dataframe
-        :param similarities: a matrix of cosine similarities
-        :param book_id: an ID of a book for which similar ones will be found
+        :param similarity_scores: a list of similarity scores books
+        :param best_rated_books: a dictionary of books that were originally selected
         :param count: a number of similar books that are to be selected.
-        :param recommendations: a dataframe with recommended books
-        :return: dataframe filled with recommended books
+        :param recommendations: a dictionary with recommended books
         """
 
-        index = self._get_index_from_id(books, book_id)
-        similarity_scores = list(enumerate(similarities[index]))
-        similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-        most_similar_books = similarity_scores[1:count + 1]
-
-        for similar_book in most_similar_books:
-            recommended = books.iloc[similar_book[0]]
-            recommendations = recommendations.append(recommended)
-
-        return recommendations
+        books_selected = 0
+        for book_index in similarity_scores:
+            candidate_book = books.iloc[book_index[0]]
+            candidate_book_id = candidate_book["id"]
+            if candidate_book_id not in best_rated_books and candidate_book_id not in recommendations:
+                recommendations[candidate_book_id] = candidate_book
+                books_selected += 1
+            if books_selected >= count:
+                return
 
     def _select_best_rated_books(self, books: DataFrame, count: int) -> tuple:
         """
@@ -89,15 +92,14 @@ class ContentBasedRecommenderService(IRecommenderService):
         topics_id = []
         if len(books.index) < count:
             selected_books = books["bookId"].values.tolist()
-            topics_id = books["metaTopic"].values.tolist()
+            topics_id = books["topic"].values.tolist()
             return selected_books, topics_id
 
         for i in range(count):
             book_index = random.randint(0, len(books.index) - 1)
-            book = books.iloc[book_index, :-1]
+            book = books.iloc[book_index]
             selected_books.append(book)
-            meta_topic_id = books.iloc[book_index, -1]
-            topics_id.append(numpy.uint64(meta_topic_id).item())
+            topics_id.append(numpy.uint64(book["topic"]).item())
             books = books[books.id != book["id"]]
         return selected_books, topics_id
 
