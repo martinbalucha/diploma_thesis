@@ -39,7 +39,6 @@ class ContentBasedRecommenderService(IRecommenderService):
         books = self.book_dao.find_candidate_books(user_id, topics)
         books = books.append(selected_best_books)
         best_rated_books_ids = best_rated_books.set_index("id").T.to_dict("list")
-        print(best_rated_books_ids)
 
         books = self.preprocessor.preprocess(books)
         tfidf_matrix = self.tfidf_vectorizer.fit_transform(books["bagOfWords"])
