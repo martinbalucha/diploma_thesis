@@ -22,6 +22,8 @@ class DiversityService(IDiversityService):
 
     def diversify(self, recommended_books: DataFrame, final_set_size: int) -> DataFrame:
         result = DataFrame(columns=recommended_books.columns[:-2])
+        if len(result.index) == 0:
+            return result
 
         tfidf_matrix = self.tfidf_vectorizer.fit_transform(recommended_books["topicName"])
         cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)

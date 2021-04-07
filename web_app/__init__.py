@@ -13,7 +13,9 @@ app.config["SECRET_KEY"] = "e10e19b72b6198986281a90d5b346e68"
 from web_app.main.routes import main
 from web_app.users.routes import users
 from web_app.books.routes import books
+from web_app.errors.handlers import errors
 
 app.register_blueprint(main)
 app.register_blueprint(users)
 app.register_blueprint(books)
+app.register_blueprint(errors)

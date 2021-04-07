@@ -17,7 +17,7 @@ def login():
         user_service = UserService(UserDao())
         is_correct, user_tuple = user_service.authenticate(login_form.username.data, login_form.password.data)
         if is_correct:
-            user = User(user_tuple["username"] , user_tuple["id"])
+            user = User(user_tuple["username"], user_tuple["id"])
             login_user(user, True)
             flash(f"Welcome, {user.name}!", "success")
             return redirect(url_for("main.index"))

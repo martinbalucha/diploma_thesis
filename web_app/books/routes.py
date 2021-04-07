@@ -51,6 +51,7 @@ def find_books():
 
 
 @books.route("/book/<book_id>", methods=["GET", "POST"])
+@login_required
 def book_detail(book_id: int):
     detail_form = BookDetailForm()
     if request.method == "POST":

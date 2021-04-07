@@ -1,3 +1,4 @@
+import swifter
 from math import floor
 from multiprocessing import Queue
 from pandas import DataFrame

@@ -1,6 +1,7 @@
 from pandas import Series, DataFrame
-from surprise import SVD, Reader, accuracy, Dataset
-from persistence.dao import rating_dao, book_dao
+from surprise import SVD, Reader, Dataset
+from persistence.dao.book_dao import BookDao
+from persistence.dao.rating_dao import RatingDao
 from service.i_recommender_service import IRecommenderService
 
 
@@ -10,10 +11,10 @@ class MatrixFactorizationService(IRecommenderService):
     """
 
     svd: SVD
-    rating_dao: rating_dao
-    book_dao: book_dao
+    rating_dao: RatingDao
+    book_dao: BookDao
 
-    def __init__(self, svd: SVD, rating_dao: rating_dao, book_dao: book_dao):
+    def __init__(self, svd: SVD, rating_dao: RatingDao, book_dao: BookDao):
         """
         Ctor
         :param svd: a singular value decomposition
@@ -28,20 +29,20 @@ class MatrixFactorizationService(IRecommenderService):
     def recommend(self, user_id: int, count: int) -> DataFrame:
         reader = Reader(line_format="user item rating", rating_scale=(1, 5))
         ratings = self.rating_dao.get_user_item_matrix()
-        rated_by_user = ratings.loc[ratings["userId"] == user_id, "bookId"]
+        rated_by_user = ratings.loc[ratings["userId"] == user_id, ["bookId", "rating"]]
+        if len(rated_by_user.index) == 0:
+            return rated_by_user
 
         books = self.book_dao.get_candidate_books_collaborative(user_id)
         ratings_dataset = Dataset.load_from_df(ratings, reader)
         train_set = ratings_dataset.build_full_trainset()
 
         self.svd.fit(train_set)
-        books["predictedRatings"] = books.apply(self._make_all_predictions, ratings=rated_by_user,
-                                                user_id=user_id, axis=1)
-
+        books["predictedRatings"] = books.swifter.apply(self._make_all_predictions, user_id=user_id, axis=1)
         books = books.sort_values("predictedRatings", ascending=False)
         return books.head(count)
 
-    def _make_all_predictions(self, book: Series, ratings: Series, user_id: int) -> float:
+    def _make_all_predictions(self, book: Series, user_id: int) -> float:
         """
         Extracts predicted rating for a book.
         :param book: series containing book ID
@@ -50,4 +51,3 @@ class MatrixFactorizationService(IRecommenderService):
         """
 
         return self.svd.predict(uid=user_id, iid=book["id"]).est
-

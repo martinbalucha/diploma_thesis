@@ -11,7 +11,8 @@ class IRecommenderService:
         Provides book recommendation of a given size
         :param user_id: ID of a user for whom the recommendation will be made
         :param count: a number of books to be recommended
-        :return: a list of suggested books
+        :return: a dataframe of suggested books. If no books were recommended, an empty
+        dataframe is returned
         """
 
         raise NotImplementedError

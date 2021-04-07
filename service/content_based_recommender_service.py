@@ -32,6 +32,9 @@ class ContentBasedRecommenderService(IRecommenderService):
 
     def recommend(self, user_id: int, count: int) -> DataFrame:
         best_rated_books = self.book_dao.get_best_rated_books(user_id)
+        if len(best_rated_books.index) == 0:
+            return best_rated_books
+
         selected_best_books, topics = self._select_best_rated_books(best_rated_books, 3)
         books = self.book_dao.find_candidate_books(user_id, topics)
         books = books.append(selected_best_books)
