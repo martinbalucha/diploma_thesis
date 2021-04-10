@@ -36,9 +36,9 @@ class BookService:
 
         return self._book_dao.find_book_by_id(book_filter)
 
-    def find_book_by_title(self, book_filter: BookFilter) -> tuple:
+    def filter_books(self, book_filter: BookFilter) -> tuple:
         """
-        Finds books which have title starting with the given parameter
+        Finds books which have satisfy values in the filter
         :param book_filter: book filter
         :return: a dataframe containing books withe the given title
         """

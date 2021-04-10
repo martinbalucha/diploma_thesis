@@ -17,12 +17,7 @@ class BookDao:
         :return: a dictionary with required book. None is does not exist
         """
 
-        query = """SELECT b.id, b.author, b.title, b.year, b.pages, b."tableOfContents",
-                          b.isbn, b.description, t.name AS "topicName", r.rating
-                    FROM book b
-                    INNER JOIN topic t ON t.id = b.topic
-                    LEFT JOIN rating r ON r."bookId" = b.id AND r."userId" = %s
-                    WHERE b.id = %s"""
+        query = query_storage.find_book_by_id_query()
 
         with db_connector.create_connection() as connection:
             with connection.cursor(cursor_factory=RealDictCursor) as cursor:
@@ -36,10 +31,7 @@ class BookDao:
         :return: a dataframe of best rated books
         """
 
-        query = """SELECT b.*, t.name as "topicName" FROM rating r
-                    INNER JOIN book b ON b.id = r."bookId"
-                    INNER JOIN topic t ON t.id = b.topic
-                    WHERE "userId" = %s AND rating >= 3 ORDER BY r.rating DESC"""
+        query = query_storage.get_best_rated_books_query()
 
         with db_connector.create_connection() as connection:
             return sqlio.read_sql(query, connection, params=[user_id])
@@ -51,9 +43,8 @@ class BookDao:
         :return: a dataframe of all rated books by other users
         """
 
-        query = """SELECT b.*, t.name as "topicName" FROM book b 
-                    INNER JOIN topic t on b.topic = t.id
-                    WHERE b.id IN (SELECT "bookId" FROM rating WHERE "userId" != %s)"""
+        query = query_storage.get_candidate_books_collaborative()
+
         with db_connector.create_connection() as connection:
             return sqlio.read_sql(query, connection, params=(user_id,))
 

@@ -43,7 +43,7 @@ def find_books():
     title = request.args.get("title")
     book_filter = BookFilter(20, page_number, title, author)
     book_service = BookService(BookDao())
-    results, total_count = book_service.find_book_by_title(book_filter)
+    results, total_count = book_service.filter_books(book_filter)
     pagination = Pagination(page=page_number, per_page=20, total=total_count, items=results,
                             css_framework='bootstrap4', record_name="books")
 
