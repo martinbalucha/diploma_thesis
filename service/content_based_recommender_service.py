@@ -14,9 +14,9 @@ class ContentBasedRecommenderService(IRecommenderService):
     A service class that performs content-based recommendations. Implements IRecommenderService
     """
 
-    preprocessor: IPreprocessor
-    tfidf_vectorizer: TfidfVectorizer
-    book_dao: BookDao
+    _preprocessor: IPreprocessor
+    _tfidf_vectorizer: TfidfVectorizer
+    _book_dao: BookDao
 
     def __init__(self, preprocessor: IPreprocessor, book_dao: BookDao, tfidf_vectorizer: TfidfVectorizer):
         """
@@ -26,22 +26,22 @@ class ContentBasedRecommenderService(IRecommenderService):
         :param tfidf_vectorizer: TF-IDF vectorizer
         """
 
-        self.preprocessor = preprocessor
-        self.book_dao = book_dao
-        self.tfidf_vectorizer = tfidf_vectorizer
+        self._preprocessor = preprocessor
+        self._book_dao = book_dao
+        self._tfidf_vectorizer = tfidf_vectorizer
 
     def recommend(self, user_id: int, count: int) -> DataFrame:
-        best_rated_books = self.book_dao.get_best_rated_books(user_id)
+        best_rated_books = self._book_dao.get_best_rated_books(user_id)
         if len(best_rated_books.index) == 0:
             return best_rated_books
 
         selected_best_books, topics = self._select_best_rated_books(best_rated_books, 3)
-        books = self.book_dao.find_candidate_books(user_id, topics)
+        books = self._book_dao.find_candidate_books(user_id, topics)
         books = books.append(selected_best_books)
         best_rated_books_ids = best_rated_books.set_index("id").T.to_dict("list")
 
-        books = self.preprocessor.preprocess(books)
-        tfidf_matrix = self.tfidf_vectorizer.fit_transform(books["bagOfWords"])
+        books = self._preprocessor.preprocess(books)
+        tfidf_matrix = self._tfidf_vectorizer.fit_transform(books["bagOfWords"])
         cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
 
         recommendations = {}

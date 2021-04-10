@@ -10,7 +10,7 @@ class DiversityService(IDiversityService):
     Implements IDiversityService interface
     """
 
-    tfidf_vectorizer: TfidfVectorizer
+    _tfidf_vectorizer: TfidfVectorizer
 
     def __init__(self, tfidf_vectorizer: TfidfVectorizer):
         """
@@ -18,14 +18,14 @@ class DiversityService(IDiversityService):
         :param tfidf_vectorizer: TF-IDF vectorizer
         """
 
-        self.tfidf_vectorizer = tfidf_vectorizer
+        self._tfidf_vectorizer = tfidf_vectorizer
 
     def diversify(self, recommended_books: DataFrame, final_set_size: int) -> DataFrame:
         result = DataFrame(columns=recommended_books.columns[:-2])
         if len(recommended_books.index) == 0:
             return result
 
-        tfidf_matrix = self.tfidf_vectorizer.fit_transform(recommended_books["topicName"])
+        tfidf_matrix = self._tfidf_vectorizer.fit_transform(recommended_books["topicName"])
         cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
 
         selected_book_index = random.randint(0, len(recommended_books.index) - 1)

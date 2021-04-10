@@ -1,3 +1,4 @@
+import swifter
 from nltk.stem import PorterStemmer
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
@@ -10,8 +11,8 @@ class Preprocessor(IPreprocessor):
     A preprocessor for the content-based recommender service
     """
 
-    stemmer: PorterStemmer
-    stop_words: set
+    _stemmer: PorterStemmer
+    _stop_words: set
 
     def __init__(self, stemmer: PorterStemmer):
         """
@@ -20,8 +21,8 @@ class Preprocessor(IPreprocessor):
         languages to English
         """
 
-        self.stemmer = stemmer
-        self.stop_words = self._build_stop_word_dict()
+        self._stemmer = stemmer
+        self._stop_words = self._build_stop_word_dict()
 
     def _preprocess(self, book: Series) -> str:
         """
@@ -64,8 +65,8 @@ class Preprocessor(IPreprocessor):
 
         filtered_words = []
         for word in words:
-            if word not in self.stop_words:
-                stemmed_word = self.stemmer.stem(word)
+            if word not in self._stop_words:
+                stemmed_word = self._stemmer.stem(word)
                 if len(stemmed_word) > 2:
                     filtered_words.append(stemmed_word)
         return filtered_words

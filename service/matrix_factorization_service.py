@@ -10,9 +10,9 @@ class MatrixFactorizationService(IRecommenderService):
     A matrix factorization service using singular value decomposition
     """
 
-    svd: SVD
-    rating_dao: RatingDao
-    book_dao: BookDao
+    _svd: SVD
+    _rating_dao: RatingDao
+    _book_dao: BookDao
 
     def __init__(self, svd: SVD, rating_dao: RatingDao, book_dao: BookDao):
         """
@@ -22,22 +22,22 @@ class MatrixFactorizationService(IRecommenderService):
         :param book_dao: a data access object for books
         """
 
-        self.svd = svd
-        self.rating_dao = rating_dao
-        self.book_dao = book_dao
+        self._svd = svd
+        self._rating_dao = rating_dao
+        self._book_dao = book_dao
 
     def recommend(self, user_id: int, count: int) -> DataFrame:
         reader = Reader(line_format="user item rating", rating_scale=(1, 5))
-        ratings = self.rating_dao.get_user_item_matrix()
+        ratings = self._rating_dao.get_user_item_matrix()
         rated_by_user = ratings.loc[ratings["userId"] == user_id, ["bookId", "rating"]]
         if len(rated_by_user.index) == 0:
             return rated_by_user
 
-        books = self.book_dao.get_candidate_books_collaborative(user_id)
+        books = self._book_dao.get_candidate_books_collaborative(user_id)
         ratings_dataset = Dataset.load_from_df(ratings, reader)
         train_set = ratings_dataset.build_full_trainset()
 
-        self.svd.fit(train_set)
+        self._svd.fit(train_set)
         books["predictedRatings"] = books.swifter.apply(self._make_all_predictions, user_id=user_id, axis=1)
         books = books.sort_values("predictedRatings", ascending=False)
         return books.head(count)
@@ -50,4 +50,4 @@ class MatrixFactorizationService(IRecommenderService):
         :return: float value representing predicted rating
         """
 
-        return self.svd.predict(uid=user_id, iid=book["id"]).est
+        return self._svd.predict(uid=user_id, iid=book["id"]).est

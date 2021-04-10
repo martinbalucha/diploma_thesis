@@ -19,7 +19,9 @@ def login():
         if is_correct:
             user = User(user_tuple["username"], user_tuple["id"])
             login_user(user, True)
-            flash(f"Welcome, {user.name}!", "success")
+            flash(f"Welcome, {user.name}! In order to provide recommendations, we need you to rate some books",
+                  "success")
+
             return redirect(url_for("main.index"))
         flash("Username or password were incorrect!")
     return render_template("login.html", form=login_form)

@@ -8,7 +8,6 @@ class BookFilter(FilterBase):
 
     title: str
     author: str
-    topic: str
     user_id: int
     book_id: int
 
