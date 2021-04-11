@@ -1,6 +1,5 @@
 import swifter
 from nltk.stem import PorterStemmer
-from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from pandas import Series, DataFrame
 from service.i_preprocessor import IPreprocessor
@@ -14,15 +13,17 @@ class Preprocessor(IPreprocessor):
     _stemmer: PorterStemmer
     _stop_words: set
 
-    def __init__(self, stemmer: PorterStemmer):
+    def __init__(self, stemmer: PorterStemmer, stop_words: set):
         """
         Ctor
         :param stemmer: the word stemmer
+        :param stop_words: a set of English stop-words
         languages to English
         """
 
         self._stemmer = stemmer
-        self._stop_words = self._build_stop_word_dict()
+        self._stop_words = stop_words
+        self._build_stop_word_dict()
 
     def _preprocess(self, book: Series) -> str:
         """
@@ -71,19 +72,19 @@ class Preprocessor(IPreprocessor):
                     filtered_words.append(stemmed_word)
         return filtered_words
 
-    def _build_stop_word_dict(self) -> set:
+    def _build_stop_word_dict(self) -> None:
         """
         Adds additional stop-words to the standard dictionary. These stop-words
         are specific for the tables of contents. Examples of such words are
         'page', 'bibliography' and 'index' but also HTML elements like <br>
-        :return: expanded dictionary of stop-words
         """
 
-        stop_words = set(stopwords.words("english"))
-        additional_words = ["page", "index", "bibliography", "br", "/br", "copyright", "\'s", "...", "\\\\", "......"]
+        additional_words = ["page", "index", "bibliography", "br", "/br", "copyright", "\'s", "...", "\\\\", "......",
+                            "preface", "postscript", "endnotes", "credits", "front cover", "epigraph",
+                            "edition", "appendix"]
+
         for stop_word in additional_words:
-            stop_words.add(stop_word)
-        return stop_words
+            self._stop_words.add(stop_word)
 
     def _build_features(self, book: Series) -> str:
         """

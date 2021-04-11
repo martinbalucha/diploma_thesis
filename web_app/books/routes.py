@@ -2,6 +2,7 @@ from flask import Blueprint, session, render_template, redirect, url_for, flash,
 from flask_login import current_user, login_required
 from flask_paginate import Pagination
 from nltk import PorterStemmer
+from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from surprise import SVD
 from dto.Filters.book_filter import BookFilter
@@ -76,7 +77,7 @@ def book_detail(book_id: int):
 @books.route("/recommend")
 @login_required
 def recommend():
-    preprocessor = Preprocessor(PorterStemmer())
+    preprocessor = Preprocessor(PorterStemmer(), set(stopwords.words("english")))
     vectorizer = TfidfVectorizer()
     content_based = ContentBasedRecommenderService(preprocessor, BookDao(), vectorizer)
     matrix_factorization = MatrixFactorizationService(SVD(n_factors=20), RatingDao(), BookDao())
