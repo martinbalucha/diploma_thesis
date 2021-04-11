@@ -130,7 +130,7 @@ def find_candidate_books_query() -> str:
     return query
 
 
-def find_book_by_id_query():
+def find_book_by_id_query() -> str:
     """
     Creates the query for book retrieval by ID
     :return: query for book retrieval by ID
@@ -146,7 +146,7 @@ def find_book_by_id_query():
     return query
 
 
-def get_best_rated_books_query():
+def get_best_rated_books_query() -> str:
     """
     Creates the query for retrieval of books rated by three or more stars by the target user
     :return: query for retrieval of books rated by three or more stars by the target user
@@ -160,7 +160,7 @@ def get_best_rated_books_query():
     return query
 
 
-def get_candidate_books_collaborative():
+def get_candidate_books_collaborative() -> str:
     """
     Creates the query for retrieval of books that could be recommended by the collaborative filtering
     :return: query for retrieval of books that could be recommended by the collaborative filtering

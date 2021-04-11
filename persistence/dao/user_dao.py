@@ -7,11 +7,11 @@ class UserDao:
     Data access object for users
     """
 
-    def get_user_by_login(self, login: str):
+    def get_user_by_login(self, login: str) -> tuple:
         """
         Finds the user with the given login
         :param login: a string that should be login of the wanted user
-        :return: a dataframe with the user. Null, if no user with given
+        :return: a tuple with the user. Null, if no user with given
         login exists
         """
 

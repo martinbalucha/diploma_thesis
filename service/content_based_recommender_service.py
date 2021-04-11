@@ -1,7 +1,7 @@
 import random
 import numpy
 import pandas
-from pandas import DataFrame
+from pandas import DataFrame, Series
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
 from persistence.dao.book_dao import BookDao
@@ -93,9 +93,7 @@ class ContentBasedRecommenderService(IRecommenderService):
         selected_books = []
         topics_id = []
         if len(books.index) < count:
-            selected_books = books["bookId"].values.tolist()
-            topics_id = books["topic"].values.tolist()
-            return selected_books, topics_id
+            count = len(books.index)
 
         for i in range(count):
             book_index = random.randint(0, len(books.index) - 1)
@@ -104,6 +102,18 @@ class ContentBasedRecommenderService(IRecommenderService):
             topics_id.append(numpy.uint64(book["topic"]).item())
             books = books[books.id != book["id"]]
         return selected_books, topics_id
+
+    def _select_book(self, book_id: int, index: int, books: DataFrame) -> Series:
+        """
+        Selects the book and its
+        :param book_id:
+        :param index:
+        :param books:
+        :return:
+        """
+
+        book = books.iloc[index]
+
 
     def _get_index_from_id(self, data_frame: DataFrame, book_id: int) -> int:
         """
