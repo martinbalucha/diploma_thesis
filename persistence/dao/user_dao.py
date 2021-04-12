@@ -1,4 +1,4 @@
-from psycopg2.extras import RealDictCursor
+from psycopg2.extras import RealDictCursor, RealDictRow
 from persistence import db_connector, query_storage
 
 
@@ -7,7 +7,7 @@ class UserDao:
     Data access object for users
     """
 
-    def get_user_by_login(self, login: str) -> tuple:
+    def get_user_by_login(self, login: str) -> RealDictRow:
         """
         Finds the user with the given login
         :param login: a string that should be login of the wanted user
@@ -21,7 +21,7 @@ class UserDao:
                 cursor.execute(query, (login,))
                 return cursor.fetchone()
 
-    def get_user(self, user_id: int) -> tuple:
+    def get_user(self, user_id: int) -> RealDictRow:
         """
         Finds the user with the given ID
         :param user_id: ID of the wanted user

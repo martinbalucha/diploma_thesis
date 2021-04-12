@@ -8,7 +8,7 @@ errors = Blueprint("errors", __name__)
 
 @errors.app_errorhandler(Exception)
 def server_error(error):
-    return render_template("errors/500.html", message=error.diag.message_primary), 500
+    return render_template("errors/500.html", message=error), 500
 
 
 @errors.app_errorhandler(404)

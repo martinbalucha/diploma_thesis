@@ -1,16 +1,15 @@
-from pandas import DataFrame
 from dto.Filters.book_filter import BookFilter
-from persistence.dao import book_dao
+from persistence.dao.book_dao import BookDao
 
 
 class BookService:
     """
-    service class for operation on books
+    Service class for operations on books
     """
 
-    _book_dao: book_dao
+    _book_dao: BookDao
 
-    def __init__(self, book_dao: book_dao):
+    def __init__(self, book_dao: BookDao):
         """
         Ctor
         :param book_dao: DAO for books
@@ -18,7 +17,7 @@ class BookService:
 
         self._book_dao = book_dao
 
-    def find_rated_books(self, book_filter: BookFilter) -> DataFrame:
+    def find_rated_books(self, book_filter: BookFilter) -> tuple:
         """
         Finds all books rated by the user with given ID
         :param book_filter: a book filter
@@ -36,7 +35,7 @@ class BookService:
 
         return self._book_dao.find_book_by_id(book_filter)
 
-    def filter_books(self, book_filter: BookFilter) -> tuple:
+    def find_books(self, book_filter: BookFilter) -> tuple:
         """
         Finds books which have satisfy values in the filter
         :param book_filter: book filter
