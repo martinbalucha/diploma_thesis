@@ -11,7 +11,7 @@ from persistence.dao.book_dao import BookDao
 from persistence.dao.rating_dao import RatingDao
 from service.book_service import BookService
 from service.content_based_recommender_service import ContentBasedRecommenderService
-from service.diversity_service import DiversityService
+from service.diversity_service import DiverseSelectionService
 from service.hybrid_recommender_service import HybridRecommenderService
 from service.matrix_factorization_service import MatrixFactorizationService
 from service.preprocessor import Preprocessor
@@ -81,7 +81,7 @@ def recommend():
     vectorizer = TfidfVectorizer()
     content_based = ContentBasedRecommenderService(preprocessor, BookDao(), vectorizer)
     matrix_factorization = MatrixFactorizationService(SVD(n_factors=20), RatingDao(), BookDao())
-    diversity_service = DiversityService(vectorizer)
+    diversity_service = DiverseSelectionService(vectorizer)
     recommender_service = HybridRecommenderService(content_based, matrix_factorization, diversity_service)
     recommended_books = recommender_service.recommend(current_user.get_id(), 20).to_dict("records")
 

@@ -2,10 +2,10 @@ import random
 from pandas import DataFrame
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import linear_kernel
-from service.i_diversity_service import IDiversityService
+from service.i_diverse_selection_service import IDiverseSelectionService
 
 
-class DiversityService(IDiversityService):
+class DiverseSelectionService(IDiverseSelectionService):
     """
     Implements IDiversityService interface
     """

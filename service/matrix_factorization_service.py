@@ -38,11 +38,11 @@ class MatrixFactorizationService(IRecommenderService):
         train_set = ratings_dataset.build_full_trainset()
 
         self._svd.fit(train_set)
-        books["predictedRatings"] = books.swifter.apply(self._make_all_predictions, user_id=user_id, axis=1)
-        books = books.sort_values("predictedRatings", ascending=False)
+        books["predictedRating"] = books.swifter.apply(self._extract_prediction, user_id=user_id, axis=1)
+        books = books.sort_values("predictedRating", ascending=False)
         return books.head(count)
 
-    def _make_all_predictions(self, book: Series, user_id: int) -> float:
+    def _extract_prediction(self, book: Series, user_id: int) -> float:
         """
         Extracts predicted rating for a book.
         :param book: series containing book ID

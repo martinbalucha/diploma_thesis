@@ -109,9 +109,7 @@ def user_item_matrix_query() -> str:
     :return: query for user-item matrix
     """
 
-    query = """SELECT "userId", "bookId", rating FROM rating LEFT JOIN book ON book.id = rating."bookId"
-                WHERE book.language = 1"""
-
+    query = """SELECT "userId", "bookId", rating FROM rating LEFT JOIN book ON book.id = rating."bookId" """
     return query
 
 

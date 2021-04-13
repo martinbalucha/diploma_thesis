@@ -1,7 +1,7 @@
 from pandas import DataFrame
 
 
-class IDiversityService:
+class IDiverseSelectionService:
     """
     An interface for a class that ensures diversity of the recommendation set
     """

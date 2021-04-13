@@ -1,7 +1,7 @@
 from math import floor
 from multiprocessing import Queue
 from pandas import DataFrame
-from service.i_diversity_service import IDiversityService
+from service.i_diverse_selection_service import IDiverseSelectionService
 from service.i_recommender_service import IRecommenderService
 
 
@@ -13,10 +13,10 @@ class HybridRecommenderService(IRecommenderService):
 
     _content_based_service: IRecommenderService
     _matrix_factorization_service: IRecommenderService
-    _diversity_service: IDiversityService
+    _diversity_service: IDiverseSelectionService
 
     def __init__(self, content_based_service: IRecommenderService, collaborative_filtering_service: IRecommenderService,
-                 diversity_service: IDiversityService):
+                 diversity_service: IDiverseSelectionService):
         """
         Ctor
         :param content_based_service: Content-based recommendation service
