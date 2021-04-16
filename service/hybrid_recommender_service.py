@@ -1,5 +1,5 @@
 from math import floor
-from multiprocessing import Queue
+from multiprocessing import Value, Process, Pool
 from pandas import DataFrame
 from service.i_diverse_selection_service import IDiverseSelectionService
 from service.i_recommender_service import IRecommenderService
@@ -30,53 +30,27 @@ class HybridRecommenderService(IRecommenderService):
 
     def recommend(self, user_id: int, count: int) -> DataFrame:
         books_per_algo = floor((count // 2) * 1.5)
-        queue = Queue()
-        processes = []
-        outputs = []
 
-        """
-        process1 = Process(target=self._recommend_wrapper, args=(self.content_based_service, user_id, books_per_algo,
-                                                                 queue))
+        with Pool(processes=2) as pool:
+            cb_tmp = pool.apply_async(self._content_based_service.recommend, args=(user_id, books_per_algo))
+            cf_tmp = pool.apply_async(self._matrix_factorization_service.recommend, args=(user_id, books_per_algo))
 
-        process2 = Process(target=self._recommend_wrapper, args=(self.matrix_factorization_service, user_id,
-                                                                 books_per_algo, queue))
+            content_based_recommendations = cb_tmp.get()
+            collaborative_recommendations = cf_tmp.get()
 
-        process1.start()
-        processes.append(process1)
-        process2.start()
-        processes.append(process2)
+            recommendations = content_based_recommendations.append(collaborative_recommendations)
+            diverse_recommendations = self._diversity_service.diversify(recommendations, 20)
+            return diverse_recommendations
 
-        for process in processes:
-            rets = queue.get()
-            outputs.append(rets)
 
-        for p in processes:
-            p.join()
 
-        """
-        content_based_recommendations = self._content_based_service.recommend(user_id, books_per_algo)
-        collaborative_recommendations = self._matrix_factorization_service.recommend(user_id, books_per_algo)
-
-        recommendations = content_based_recommendations.append(collaborative_recommendations)
-        recommendations.reset_index(drop=True, inplace=True)
-        diverse_recommendations = self._diversity_service.diversify(recommendations, count)
-
-        """"
-        content_based_recommendations = outputs[0]
-        collaborative_recommendations = outputs[1]
-        recommendations = content_based_recommendations.append(collaborative_recommendations)
-        diverse_recommendations = self.diversity_service.diversify(recommendations, 20)
-        """
-        return diverse_recommendations
-
-    def _recommend_wrapper(self, recommender: IRecommenderService, user_id: int, count: int,
-                           queue: Queue) -> None:
-        """
-        Wrapper method for receiving recommendations so they can run in parallel and store results into the queue
-        :param recommender: recommending service
-        :param user_id: ID of the target user
-        :param count: number of books to recommend
-        :param queue: a thread-safe queue for storing recommended books
+    def _run_recommend(self, recommender: IRecommenderService, user_id: int, count: int, return_value):
         """
 
-        queue.put(recommender.recommend(user_id, count))
+        :param recommender:
+        :param user_id:
+        :param count:
+        :param return_value:
+        :return:
+        """
+        return_value.value = recommender.recommend(user_id, count)

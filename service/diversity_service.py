@@ -34,28 +34,25 @@ class DiverseSelectionService(IDiverseSelectionService):
         book_ids = recommended_books["id"]
 
         for i in range(final_set_size - 1):
-            already_picked_books = result["id"].tolist()
-            least_similar_index = self._pick_least_similar(selected_book_index, cosine_similarities,
-                                                           already_picked_books, book_ids)
-
+            already_picked_books = set(result["id"])
+            similarity_scores = list(enumerate(cosine_similarities[selected_book_index]))
+            least_similar_index = self._pick_least_similar(similarity_scores, already_picked_books, book_ids)
             least_similar_book = recommended_books.iloc[least_similar_index]
+            selected_book_index = least_similar_index
             result = result.append(least_similar_book)
 
         return result
 
-    def _pick_least_similar(self, book_index: int, cosine_similarities: list, selected_books: list,
-                            recommended_books: DataFrame) -> int:
+    def _pick_least_similar(self, similarity_scores: list, selected_books: set, recommended_books: DataFrame) -> int:
         """
         Picks the least similar item from the list that has not yet been selected.
-        :param book_index: Index of a book for which the least similar counterpart will be found
-        :param cosine_similarities: a matrix of similarity scores for each book
+        :param similarity_scores: a list of similarity scores between a selected book and the rest
         :param selected_books: a list of already selected books' ids
         :param recommended_books: a dataframe of books recommended by the filtering algorithms
         :return: the least similar book that has not yet been selected. If all books have been selected,
         -1 will be returned - this scenario should not occur, though
         """
 
-        similarity_scores = list(enumerate(cosine_similarities[book_index]))
         similarity_scores = sorted(similarity_scores, key=lambda x: x[1])
         for similar_book in similarity_scores:
             index = similar_book[0]
