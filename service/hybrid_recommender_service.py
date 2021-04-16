@@ -1,5 +1,5 @@
 from math import floor
-from multiprocessing import Value, Process, Pool
+from multiprocessing import Pool
 from pandas import DataFrame
 from service.i_diverse_selection_service import IDiverseSelectionService
 from service.i_recommender_service import IRecommenderService
@@ -7,8 +7,7 @@ from service.i_recommender_service import IRecommenderService
 
 class HybridRecommenderService(IRecommenderService):
     """
-    A recommender service combining content-based filtering
-    and collaborative filtering
+    A recommender service combining content-based filtering and collaborative filtering
     """
 
     _content_based_service: IRecommenderService
@@ -39,18 +38,5 @@ class HybridRecommenderService(IRecommenderService):
             collaborative_recommendations = cf_tmp.get()
 
             recommendations = content_based_recommendations.append(collaborative_recommendations)
-            diverse_recommendations = self._diversity_service.diversify(recommendations, 20)
+            diverse_recommendations = self._diversity_service.diversify(recommendations, count)
             return diverse_recommendations
-
-
-
-    def _run_recommend(self, recommender: IRecommenderService, user_id: int, count: int, return_value):
-        """
-
-        :param recommender:
-        :param user_id:
-        :param count:
-        :param return_value:
-        :return:
-        """
-        return_value.value = recommender.recommend(user_id, count)
