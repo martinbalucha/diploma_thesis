@@ -135,10 +135,12 @@ def find_book_by_id_query() -> str:
     """
 
     query = """SELECT b.id, b.author, b.title, b.year, b.pages, b."tableOfContents",
-                      b.isbn, b.description, t.name AS "topicName", r.rating
+                      b.isbn, b.description, t.name AS "topicName", r.rating, stat.average, stat."ratingCount"
                 FROM book b
                 INNER JOIN topic t ON t.id = b.topic
                 LEFT JOIN rating r ON r."bookId" = b.id AND r."userId" = %s
+                LEFT JOIN (SELECT "bookId", COUNT(*) AS "ratingCount", ROUND(AVG(rating), 2) as average FROM rating 
+                            GROUP BY "bookId") stat ON b.id = stat."bookId"
                 WHERE b.id = %s"""
 
     return query

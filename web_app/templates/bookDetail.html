@@ -41,6 +41,13 @@
 					</div>
 				{% endif %}
 
+				{% if book['average'] > 0 %}
+					<label class="form-label">Average rating</label>
+					<div class="form-group">
+						<input type="text" class="form-control" value="{{ book['average']}}/5 with {{ book['ratingCount'] }}{% if book['ratingCount'] == 1 %} rating {% else %} ratings {% endif %}" readonly>
+					</div>
+				{% endif %}
+
 				{% if book['description']|length > 0 %}
 					<label class="form-label">Book description</label>
 					<div class="form-group">
