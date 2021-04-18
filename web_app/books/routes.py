@@ -70,6 +70,9 @@ def book_detail(book_id: int):
         book_service = BookService(BookDao())
         book_filter = BookFilter(0, 0, book_id=book_id, user_id=current_user.get_id())
         required_book = book_service.find_book(book_filter)
+        if required_book is None:
+            flash("No such book exists", "info")
+            return redirect(url_for("books.find_books"))
         session["already_rated"] = required_book["rating"] is not None
         return render_template("bookDetail.html", form=detail_form, book=required_book)
 

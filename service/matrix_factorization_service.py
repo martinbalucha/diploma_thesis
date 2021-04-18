@@ -39,8 +39,8 @@ class MatrixFactorizationService(IRecommenderService):
 
         self._svd.fit(train_set)
         books["predictedRating"] = books.swifter.apply(self._extract_prediction, user_id=user_id, axis=1)
-        books = books.sort_values("predictedRating", ascending=False)
-        return books.head(count)
+        books = books[books["predictedRating"] > 4]
+        return books.sample(frac=1).head(count)
 
     def _extract_prediction(self, book: Series, user_id: int) -> float:
         """

@@ -20,7 +20,7 @@
 					<input type="text" class="form-control" value="{{ book['topicName'] }}" readonly>
 				</div>
 
-				{% if book['pages']|length > 0 %}
+				{% if book['year']|length > 1 %}
 				<label class="form-label">Year</label>
 				<div class="form-group">
 					<input type="text" class="form-control" value="{{ book['year'] }}" readonly>
@@ -34,28 +34,28 @@
 					</div>
 				{% endif %}
 
-				{% if book['pages']|length > 0 %}
+				{% if book['isbn']|length > 0 %}
 					<label class="form-label">ISBN</label>
 					<div class="form-group">
 						<input type="text" class="form-control" value="{{ book['isbn'] }}" readonly>
 					</div>
 				{% endif %}
 
-				{% if book['average'] > 0 %}
+				{% if book['average'] is not none %}
 					<label class="form-label">Average rating</label>
 					<div class="form-group">
 						<input type="text" class="form-control" value="{{ book['average']}}/5 with {{ book['ratingCount'] }}{% if book['ratingCount'] == 1 %} rating {% else %} ratings {% endif %}" readonly>
 					</div>
 				{% endif %}
 
-				{% if book['description']|length > 0 %}
+				{% if book['description'] is not none and book['description']|length > 0 %}
 					<label class="form-label">Book description</label>
 					<div class="form-group">
 						<textarea class="form-control"] rows="4" readonly>{{ book['description'] }}</textarea>
 					</div>
 				{% endif %}
 
-				{% if book['tableOfContents']|length > 0 %}
+				{% if book['tableOfContents'] is not none and book['tableOfContents']|length > 0 %}
 					<label class="form-label">Table of contents</label>
 					<div class="form-group">
 						<textarea class="form-control" rows="5" cols="90" readonly>{{ book['tableOfContents'] }}</textarea>
