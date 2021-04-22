@@ -1,6 +1,5 @@
 from surprise import Reader, Dataset, SVD
 from surprise.model_selection import cross_validate, GridSearchCV
-
 from persistence.dao.rating_dao import RatingDao
 
 
@@ -17,7 +16,11 @@ def evaluate() -> None:
     cross_validate(svd, ratings_dataset, measures=["RMSE", "MAE"], cv=5, verbose=True)
 
 
-def grid_search():
+def grid_search() -> None:
+    """
+    Attempts to find the most optimal number of factors
+    """
+
     rating_dao = RatingDao()
     reader = Reader(line_format="user item rating", rating_scale=(1, 5))
     ratings = rating_dao.get_user_item_matrix()

@@ -81,7 +81,7 @@ class Preprocessor(IPreprocessor):
 
         additional_words = ["page", "index", "bibliography", "br", "/br", "copyright", "\'s", "...", "\\\\", "......",
                             "preface", "postscript", "endnotes", "credits", "front cover", "epigraph",
-                            "edition", "appendix"]
+                            "edition", "appendix", "annotation", "abbreviations", "conclusion"]
 
         for stop_word in additional_words:
             self._stop_words.add(stop_word)
