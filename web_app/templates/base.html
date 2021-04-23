@@ -23,8 +23,9 @@
             <div class="collapse navbar-collapse" id="navbarToggle">
               <div class="navbar-nav mr-auto">
                 <a class="nav-item nav-link" href="{{ url_for('books.rated_books') }}">Rated books</a>
-                <a class="nav-item nav-link" href="/recommend">Recommend books</a>
-                <a class="nav-item nav-link" href="/find">Find books</a>
+                <a class="nav-item nav-link" href="{{ url_for('books.recommend') }}">Recommend books</a>
+                <a class="nav-item nav-link" href="{{ url_for('books.find_books') }}">Find books</a>
+                  <a class="nav-item nav-link" href="{{ url_for('main.about') }}">About</a>
               </div>
               <div class="navbar-nav">
                 {% if current_user.is_authenticated %}
