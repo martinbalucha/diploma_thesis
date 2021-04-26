@@ -39,4 +39,5 @@ class HybridRecommenderService(IRecommenderService):
 
             recommendations = content_based_recommendations.append(collaborative_recommendations)
             diverse_recommendations = self._diversity_service.diversify(recommendations, count)
+            diverse_recommendations = diverse_recommendations.sort_values(by=["topicName", "title"])
             return diverse_recommendations

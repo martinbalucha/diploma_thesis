@@ -83,7 +83,7 @@ def recommend():
     preprocessor = Preprocessor(PorterStemmer(), set(stopwords.words("english")))
     vectorizer = TfidfVectorizer()
     content_based = ContentBasedRecommenderService(preprocessor, BookDao(), vectorizer)
-    matrix_factorization = MatrixFactorizationService(SVD(n_factors=20), RatingDao(), BookDao())
+    matrix_factorization = MatrixFactorizationService(SVD(n_factors=20, n_epochs=25), RatingDao(), BookDao())
     diversity_service = DiverseSelectionService(vectorizer)
     recommender_service = HybridRecommenderService(content_based, matrix_factorization, diversity_service)
     recommended_books = recommender_service.recommend(current_user.get_id(), 20).to_dict("records")

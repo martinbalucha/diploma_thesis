@@ -35,31 +35,45 @@ class ContentBasedRecommenderService(IRecommenderService):
         if len(best_rated_books.index) == 0:
             return best_rated_books
 
-        selected_best_books, topics = self._select_best_rated_books(best_rated_books, 3)
+        pick_per_one_rated = 2
+        rated_books_to_pick = count // pick_per_one_rated
+        selected_best_books, topics = self._select_best_rated_books(best_rated_books, rated_books_to_pick)
         books = self._book_dao.find_candidate_books(user_id, topics)
         books = books.append(selected_best_books)
         best_rated_books_ids = best_rated_books.set_index("id").T.to_dict("list")
 
         books = self._preprocessor.preprocess(books)
-        tfidf_matrix = self._tfidf_vectorizer.fit_transform(books["bagOfWords"])
-        cosine_similarities = linear_kernel(tfidf_matrix, tfidf_matrix)
+        cosine_similarities = self._calculate_similarities(books, books.tail(rated_books_to_pick))
 
         recommendations = {}
         selected_best_books_count = len(selected_best_books)
-        similar_per_book = count // selected_best_books_count
+        similar_per_book = pick_per_one_rated
 
-        for i in range(selected_best_books_count):
-            book = selected_best_books[i]
+        for i in range(rated_books_to_pick):
+            # book = selected_best_books[i]
             if i == selected_best_books_count - 1:
                 similar_per_book += count % selected_best_books_count
-            index = self._get_index_from_id(books, book["id"])
-            similarity_scores = list(enumerate(cosine_similarities[index]))
+            similarity_scores = list(enumerate(cosine_similarities[i]))
             similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
             self._select_similar_books(similarity_scores, books, best_rated_books_ids, similar_per_book,
                                        recommendations)
 
         result_df = pandas.DataFrame.from_dict(recommendations, orient="index")
         return result_df
+
+    def _calculate_similarities(self, candidate_books: DataFrame, rated_books: DataFrame):
+        """
+        Calculates tf-idf for books and calculates cosine similarity between selected rated books.
+        Rated books have to be first fit into the vector space of all words and then
+        :param candidate_books:
+        :param rated_books:
+        :return:
+        """
+
+        tfidf_matrix_candidate = self._tfidf_vectorizer.fit_transform(candidate_books["bagOfWords"])
+        tfidf_matrix_rated = self._tfidf_vectorizer.fit(candidate_books["bagOfWords"])
+        tfidf_matrix_rated = tfidf_matrix_rated.transform(rated_books["bagOfWords"])
+        return linear_kernel(tfidf_matrix_rated, tfidf_matrix_candidate)
 
     def _select_similar_books(self, similarity_scores: list, books: DataFrame, best_rated_books: dict, count: int,
                               recommendations: dict) -> None:
@@ -102,13 +116,3 @@ class ContentBasedRecommenderService(IRecommenderService):
             topics_id.append(numpy.uint64(book["topic"]).item())
             books = books[books.id != book["id"]]
         return selected_books, topics_id
-
-    def _get_index_from_id(self, data_frame: DataFrame, book_id: int) -> int:
-        """
-        Gets index of the book with the given id
-        :param data_frame: dataframe with books
-        :param book_id: id of the sought item
-        :return: index of the book with given ID
-        """
-
-        return data_frame.index[data_frame["id"] == book_id].values[0]

@@ -27,6 +27,7 @@ class MatrixFactorizationService(IRecommenderService):
         self._book_dao = book_dao
 
     def recommend(self, user_id: int, count: int) -> DataFrame:
+        lower_rating_bound = 3.8
         reader = Reader(line_format="user item rating", rating_scale=(1, 5))
         ratings = self._rating_dao.get_user_item_matrix()
         rated_by_user = ratings.loc[ratings["userId"] == user_id, ["bookId", "rating"]]
@@ -39,7 +40,7 @@ class MatrixFactorizationService(IRecommenderService):
 
         self._svd.fit(train_set)
         books["predictedRating"] = books.swifter.apply(self._extract_prediction, user_id=user_id, axis=1)
-        books = books[books["predictedRating"] > 4]
+        books = books[books["predictedRating"] >= lower_rating_bound]
         return books.sample(frac=1).head(count)
 
     def _extract_prediction(self, book: Series, user_id: int) -> float:

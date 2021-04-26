@@ -1,5 +1,9 @@
 import psycopg2
+from configparser import ConfigParser
 
+
+config = ConfigParser()
+config.read("config.ini")
 
 def create_connection():
     """
@@ -8,5 +12,10 @@ def create_connection():
     :return: a connection to the database.
     """
 
-    connection = psycopg2.connect(host="localhost", database="library", user="postgres", password="admin")
+    host = config["postgresDb"]["host"]
+    database = config["postgresDb"]["database"]
+    user = config["postgresDb"]["user"]
+    password = config["postgresDb"]["password"]
+
+    connection = psycopg2.connect(host=host, database=database, user=user, password=password)
     return connection

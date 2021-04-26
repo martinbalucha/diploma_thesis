@@ -120,9 +120,8 @@ def find_candidate_books_query() -> str:
     """
 
     query = """SELECT DISTINCT b.*, t.name as "topicName" FROM book b
-                LEFT JOIN rating r ON b.id = r."bookId"
                 INNER JOIN topic t ON t.id = b.topic
-                WHERE (r."userId" IS DISTINCT FROM %s) AND b.language = 1
+                WHERE b.id NOT IN (SELECT "bookId" FROM rating WHERE "userId" = %s)
                 AND t.id IN %s"""
 
     return query
@@ -168,6 +167,7 @@ def get_candidate_books_collaborative() -> str:
 
     query = """SELECT b.*, t.name as "topicName" FROM book b 
                 INNER JOIN topic t on b.topic = t.id
-                WHERE b.id IN (SELECT "bookId" FROM rating WHERE "userId" != %s)"""
+                WHERE b.id IN (SELECT "bookId" FROM rating WHERE "userId" != %s
+                                GROUP BY "bookId" HAVING COUNT(*) > 10)"""
 
     return query
