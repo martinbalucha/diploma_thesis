@@ -5,6 +5,7 @@ from configparser import ConfigParser
 config = ConfigParser()
 config.read("config.ini")
 
+
 def create_connection():
     """
     Creates connection to the database. The connection must
