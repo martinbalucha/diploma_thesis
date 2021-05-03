@@ -89,6 +89,6 @@ def recommend():
     recommended_books = recommender_service.recommend(current_user.get_id(), 20).to_dict("records")
 
     if len(recommended_books) == 0:
-        flash("You have not rated any books yet. There is nothing to base our recommendations on!", "info")
+        flash("First, you have tell us what books you liked. Please rate at least one book with 3 or more stars", "info")
         return redirect(url_for("main.index"))
     return render_template("recommendations.html", books=recommended_books)

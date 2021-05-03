@@ -30,7 +30,9 @@ class MatrixFactorizationService(IRecommenderService):
         lower_rating_bound = 3.8
         reader = Reader(line_format="user item rating", rating_scale=(1, 5))
         ratings = self._rating_dao.get_user_item_matrix()
-        rated_by_user = ratings.loc[ratings["userId"] == user_id, ["bookId", "rating"]]
+        rated_by_user = ratings.loc[(ratings["userId"] == user_id) & (ratings["rating"] > 2),
+                                    ["bookId", "rating"]]
+
         if len(rated_by_user.index) == 0:
             return rated_by_user
 

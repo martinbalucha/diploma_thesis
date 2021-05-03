@@ -65,15 +65,15 @@ class ContentBasedRecommenderService(IRecommenderService):
         """
         Calculates tf-idf for books and calculates cosine similarity between selected rated books.
         Rated books have to be first fit into the vector space of all words and then
-        :param candidate_books:
-        :param rated_books:
-        :return:
+        :param candidate_books: a data frame of all pre-processed books
+        :param rated_books: the data frame of books rated by the user
+        :return: a matrix of cosine similarities
         """
 
         tfidf_matrix_candidate = self._tfidf_vectorizer.fit_transform(candidate_books["bagOfWords"])
-        tfidf_matrix_rated = self._tfidf_vectorizer.fit(candidate_books["bagOfWords"])
-        tfidf_matrix_rated = tfidf_matrix_rated.transform(rated_books["bagOfWords"])
-        return linear_kernel(tfidf_matrix_rated, tfidf_matrix_candidate)
+        tfidf_matrix = self._tfidf_vectorizer.fit(candidate_books["bagOfWords"])
+        tfidf_matrix = tfidf_matrix.transform(rated_books["bagOfWords"])
+        return linear_kernel(tfidf_matrix, tfidf_matrix_candidate)
 
     def _select_similar_books(self, similarity_scores: list, books: DataFrame, best_rated_books: dict, count: int,
                               recommendations: dict) -> None:

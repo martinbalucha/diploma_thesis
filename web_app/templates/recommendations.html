@@ -17,7 +17,7 @@
             <tbody>
                 {% for book in books %}
                     <tr>
-                        <td><a href="{{ url_for('books.book_detail', book_id=book['id']) }}">{{ book["title"] }}</a></td>
+                        <td><a href="{{ url_for('books.book_detail', book_id=book['id']) }}" target="_blank">{{ book["title"] }}</a></td>
                         <td>{{ book["author"] }}</td>
                         <td>{{ book["pages"] }}</td>
                         <td>{{ book["topicName"] }}</td>

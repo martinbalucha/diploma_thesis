@@ -34,7 +34,7 @@ class Preprocessor(IPreprocessor):
 
         lowercase_string = str(book["bagOfWords"]).lower()
         words = word_tokenize(lowercase_string)
-        preprocessed_words = self._stem_and_remove_stop_words(words)
+        preprocessed_words = self._remove_stop_words_and_stem(words)
         separator = " "
         return separator.join(preprocessed_words)
 
@@ -57,9 +57,9 @@ class Preprocessor(IPreprocessor):
         author = str(book["author"])
         return author.replace(" ", "")
 
-    def _stem_and_remove_stop_words(self, words: list) -> list:
+    def _remove_stop_words_and_stem(self, words: list) -> list:
         """
-        Removes stop-words from bag of words
+        Removes stop-words from bag of words and stems the rest
         :param words: a list of words that are to be cleared
         :return: a bag of words cleared of any stop-words
         """

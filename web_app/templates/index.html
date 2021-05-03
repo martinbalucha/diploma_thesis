@@ -1,2 +1,9 @@
 {% extends "base.html" %}
 {% block title %} Home page {% endblock %}
+{% block content %}
+    {% if current_user.is_authenticated %}
+        <p>Feel free to rate books, view their details, ask for recommendations and browse our catalog!</p>
+    {% else %}
+        <p>As an anonymous user, you can only browse catalog. In order to get more options, please log in!</p>
+    {% endif %}
+{% endblock %}
