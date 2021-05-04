@@ -41,7 +41,7 @@ class MatrixFactorizationService(IRecommenderService):
         train_set = ratings_dataset.build_full_trainset()
 
         self._svd.fit(train_set)
-        books["predictedRating"] = books.swifter.apply(self._extract_prediction, user_id=user_id, axis=1)
+        books["predictedRating"] = books.apply(self._extract_prediction, user_id=user_id, axis=1)
         books = books[books["predictedRating"] >= lower_rating_bound]
         return books.sample(frac=1).head(count)
 

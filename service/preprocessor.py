@@ -1,4 +1,4 @@
-import swifter
+import mapply
 from nltk.stem import PorterStemmer
 from nltk.tokenize import word_tokenize
 from pandas import Series, DataFrame
@@ -39,10 +39,11 @@ class Preprocessor(IPreprocessor):
         return separator.join(preprocessed_words)
 
     def preprocess(self, data_frame: DataFrame) -> DataFrame:
+        mapply.init(n_workers=-1)
         data_frame.reset_index(drop=True, inplace=True)
-        data_frame["authorName"] = data_frame.swifter.apply(self._adjust_author_name, axis=1)
-        data_frame["bagOfWords"] = data_frame.swifter.apply(self._build_features, axis=1)
-        data_frame["bagOfWords"] = data_frame.swifter.apply(self._preprocess, axis=1)
+        data_frame["authorName"] = data_frame.mapply(self._adjust_author_name, axis=1)
+        data_frame["bagOfWords"] = data_frame.mapply(self._build_features, axis=1)
+        data_frame["bagOfWords"] = data_frame.mapply(self._preprocess, axis=1)
         return data_frame
 
     def _adjust_author_name(self, book: Series) -> str:
@@ -94,5 +95,9 @@ class Preprocessor(IPreprocessor):
         :return: combined feature of the book
         """
 
+        table_of_contents = ""
+        if book["tableOfContents"] is not None:
+            table_of_contents = book["tableOfContents"]
+
         return (book["title"] + " " + book["authorName"] + " " + book["description"] + " "
-                + book["tableOfContents"] + " " + book["topicName"])
+                + table_of_contents + " " + book["topicName"])

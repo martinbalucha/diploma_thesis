@@ -4,7 +4,7 @@ Flask==1.1.2
 nltk==3.5
 pandas==1.2.3
 scikit_surprise==1.1.1
-swifter==1.0.7
+mapply==0.1.7
 Flask_WTF==0.14.3
 psycopg2==2.8.6
 WTForms==2.3.3
